@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en" data-framework="javascript">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+		<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">	
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.5.9/slick.min.css">	
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.5.9/slick-theme.css">	
+		<style>
+			@font-face {
+			    font-family: 'nanumsquareregular';
+			    src: url('/fonts/nanumsquarer-webfont.eot');
+			    src: url('/fonts/nanumsquarer-webfont.eot?#iefix') format('embedded-opentype'),
+			         url('/fonts/nanumsquarer-webfont.woff2') format('woff2'),
+			         url('/fonts/nanumsquarer-webfont.woff') format('woff'),
+			         url('/fonts/nanumsquarer-webfont.ttf') format('truetype'),
+			         url('/fonts/nanumsquarer-webfont.svg#nanumsquareregular') format('svg');
+			    font-weight: normal;
+			    font-style: normal;
+			}
+					
+			@font-face {
+			    font-family: 'nanumsquarebold';
+			    src: url('/fonts/nanumsquareb-webfont.eot');
+			    src: url('/fonts/nanumsquareb-webfont.eot?#iefix') format('embedded-opentype'),
+			         url('/fonts/nanumsquareb-webfont.woff2') format('woff2'),
+			         url('/fonts/nanumsquareb-webfont.woff') format('woff'),
+			         url('/fonts/nanumsquareb-webfont.ttf') format('truetype'),
+			         url('/fonts/nanumsquareb-webfont.svg#nanumsquarebold') format('svg');
+			    font-weight: normal;
+			    font-style: normal;
+			}
+		</style>
+		<title>Transit</title>
+		<style>
+
+		html, body {
+			position: relative;
+			margin: 0;
+			font-family: 'nanumsquarebold', sans-serif;
+			-webkit-font-smoothing: antialiased;
+			height: 100%;
+			width: 100%;
+			overflow: hidden;
+		}
+		ul {
+			list-style: none;
+		}
+		li, ul {
+			margin: 0;
+			padding: 0; 
+		}
+
+		.center {
+			width: 24px;
+			height: 24px;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			background-color: #b72abc;
+			transform: translate(-50%, -50%);
+			z-index: 30;
+			border-radius: 20px;
+			box-sizing: border-box;
+			box-shadow: 0px 2px 8px rgba(0,0,0,.4);
+		}
+		.center.moving {
+			opacity: .6;	
+		}
+		
+		.card {
+		    border-radius: 2px;
+		    box-sizing: border-box;
+		    height: 48px;
+		    border-bottom: 1px solid transparent;
+		    padding: 12px 10px 12px 10px;
+		    transition-property: background,box-shadow;
+		    transition-duration: 0.3s;			
+		}
+		
+		.searchboxContainer {
+		    position: fixed;
+		    top: 0;
+		    left: 0;
+		    width: 100%;
+		    height: 90px;
+			pointer-events: none;
+		    z-index: 100;
+
+			/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+65,000000+99&0.56+0,0.15+56,0+100 */
+			background: -moz-linear-gradient(top,  rgba(0,0,0,0.56) 0%, rgba(0,0,0,0.15) 56%, rgba(0,0,0,0.12) 65%, rgba(0,0,0,0) 99%, rgba(0,0,0,0) 100%); /* FF3.6-15 */
+			background: -webkit-linear-gradient(top,  rgba(0,0,0,0.56) 0%,rgba(0,0,0,0.15) 56%,rgba(0,0,0,0.12) 65%,rgba(0,0,0,0) 99%,rgba(0,0,0,0) 100%); /* Chrome10-25,Safari5.1-6 */
+			background: linear-gradient(to bottom,  rgba(0,0,0,0.56) 0%,rgba(0,0,0,0.15) 56%,rgba(0,0,0,0.12) 65%,rgba(0,0,0,0) 99%,rgba(0,0,0,0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#8f000000', endColorstr='#00000000',GradientType=0 ); /* IE6-9 */
+		}
+		.searchbox {
+			pointer-events: all;
+			position: relative;
+		    background: #fff;
+		    margin: 8px;
+		    margin-top: 26px;
+		    z-index: 100;
+			font-family: 'nanumsquareregular', sans-serif;
+		    font-size: 22px;
+		    text-align: center;
+		    
+		    box-shadow: 0 2px 4px rgba(0,0,0,0.2),0 -1px 0px rgba(0,0,0,0.02);
+		}
+		
+		.transitItemGroup {
+			background-color: rgba(0,0,0,.8);			
+			border-top: 1px solid rgba(0,0,0,.4);			
+			box-shadow: 0px 1px 0px rgba(255,255,255,.18) inset;
+		}
+		
+		.transitItemGroup.invert {
+			color: rgba(0, 0, 0,.8);		
+		}
+		
+		.transitItemGroup.invert > .name,
+		.transitItemGroup.invert .direction,
+		.transitItemGroup.invert .location,
+		.transitItemGroup.invert .direction i,
+		.transitItemGroup.invert .time,
+		.transitItemGroup.invert .time .minutes  {
+			color: rgba(0, 0, 0, 0.87);
+			    text-shadow: 0px 2px 0px rgba(0,0,0,.1);
+			1text-shadow: none;					
+		}
+		
+		.transitItemGroup.invert .slick-dots li button:before {
+			color: rgb(0, 0, 0);
+		}
+		
+		.transitItemGroup.invert .slick-dots li.slick-active button:before {
+		    color: black;
+		}
+		.transitLayer .transitItem {
+			position: relative;
+			height: 100px;
+			border-radius: 0;
+		}
+		.transitItem {
+		    position: relative;			
+		    z-index: 200;
+		}
+		
+		.compass {
+			position: absolute;
+			top: 20px;
+			left: 20px;
+			width: 48px;
+			height: 48px;
+			background-color: rgba(255,255,255, .4);
+			border: 1px solid rgba(0,0,0,.1);
+			border-radius: 10px;
+			z-index: 30;
+			box-shadow: 2px 2px 7px rgba(0,0,0,.1);
+		}		
+		
+		#map {
+			overflow: hidden;
+			z-index: 50;			
+			height: 100%;
+			width: 100%;
+			z-index: 0;
+		}
+		
+		
+		#wrapper {		
+			position: absolute;
+			z-index: 20;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			width: 100%;
+			background: transparent;
+			overflow: hidden;
+			height: 100%;
+			pointer-events: none;
+			z-index: 30;
+		}
+		
+		#scroller {
+			1background-color: #115bad;
+			
+		}
+		.mapPlaceholder {
+			position: relative;
+			width: 100%;
+		}
+		
+		.transitLayer {
+			pointer-events: all;
+			-webkit-user-select: none;
+		}
+
+		.transitItemGroup > .name, 
+		.transitItem > .name,
+		.direction,
+		.location,
+		.direction i,
+		.time,
+		.time .minutes {
+		    color: rgba(255, 255, 255, 0.87);
+		}
+		
+		.transitItemGroup > .name {
+		    position: absolute;
+		    top: 9px;
+		    left: 9px;
+		    font-size: 38px;
+		    text-shadow: 0px 1px 0px rgba(0,0,0,.3);
+		    font-kerning: normal;			
+		}
+		
+		.transitItem > .name {
+		    position: absolute;
+		    top: 9px;
+		    left: 9px;
+		    font-size: 38px;
+		    text-shadow: 0px 2px 0px rgba(0,0,0,.3);
+		    font-kerning: normal;
+		    
+		    visibility: hidden;
+		    /* letter-spacing: 3px; */
+		}
+		.direction {
+		    position: absolute;
+		    top: 37px;
+		    left: 11px;
+		    letter-spacing: 1px;
+		    font-weight: 400;
+		    line-height: 20px;
+		    font-size: 15px;
+		    text-shadow: 0px -1px 0px rgba(0,0,0,.3);
+		    font-kerning: normal;
+		    vertical-align: middle;
+			font-family: 'nanumsquarebold', sans-serif;
+
+		}
+		.location {
+		    position: absolute;
+		    top: 60px;
+		    left: 11px;
+		    letter-spacing: 1px;
+		    font-weight: 100;
+		    line-height: 22px;
+		    font-size: 11px;
+		    text-shadow: 0px -1px 0px rgba(0,0,0,.3);
+		    font-kerning: normal;
+		    vertical-align: middle;
+			font-family: 'nanumsquareregular', sans-serif;
+		}		
+		
+		.direction i {
+			font-size: 12px;
+			line-height: 20px;
+			vertical-align: bottom;
+		}
+		.name .narrow_space {
+			letter-spacing: -17px;
+		}
+		
+		.time {
+		    position: absolute;
+		    top: 50%;
+		    right: 16px;
+		    font-size: 33px;
+		    text-shadow: 0px -1px 0px rgba(0,0,0,.3);
+		    text-align: center;
+		    transform: translateY(-50%);
+		}
+		.time .minutes {
+		    font-size: 10px;
+		    font-weight: 300;
+		    letter-spacing: 0px;
+		    font-kerning: normal;
+		    text-shadow: 0px -1px 0px rgba(0,0,0,.3);
+		}
+		.transperent {
+			color: rgba(0,0,0,0);
+			overflow: hidden;
+			height: 0;
+		}
+		.slick-slider {
+		    margin-bottom: 0;
+		}
+		.slick-dots {
+		    position: absolute;
+		    top: 0;
+		    bottom: auto;
+		}
+		.slick-dots li {
+		    width: 10px;
+		    height: auto;
+		    margin: 0;
+		}
+		
+		.slick-dots li button:before {
+		    color: white;
+		    width: 10px;
+			height: 10px;
+			line-height: 10px;
+	        padding: 0;
+		}
+		.slick-dots li button:before {
+			width: 10px;
+			height: 10px;		
+		}
+		.slick-dots li.slick-active button:before {
+			color: white;
+		}
+		
+		
+		.BG_RED_500 {
+			background-color: #F44336;
+		}
+		.BG_RED_600 {
+			background-color: #E53935;
+		}
+		.BG_RED_700 {
+			background-color: #D32F2F;
+		}
+		.BG_RED_900 {
+			background-color: #B71C1C;
+		}		
+		
+		.BG_GREEN_300 {
+			background-color: #81C784;
+			
+		}
+		.BG_GREEN_600 {
+			background-color: #43A047;
+		}
+		.BG_GREEN_700 {
+			background-color: #388E3C;
+		}
+		
+		
+		.BG_LIGHT_GREEN_700 {
+			background-color: #689F38;
+		}
+		
+		.BG_YELLOW_600 {
+			background-color: #FDD835 !important;
+		}
+		
+		.BG_YELLOW_700 {
+			background-color: #FBC02D !important;
+		}
+		
+		.BG_DEEP_PURPLE_500 {
+			background-color: #673AB7;
+		}	
+		
+		.BG_BLUE_100 {
+			background-color: #BBDEFB;
+		}
+		.BG_BLUE_200 {
+			background-color: #90CAF9;
+		}
+				
+		.BG_BLUE_500 {
+			background-color: #2196F3;
+		}		
+		
+		.BG_INDIGO_500 {
+			background-color: #3F51B5;
+		}
+		.BG_INDIGO_700 {
+			background-color: #303F9F;
+		}
+		
+		.BG_ORANGE_800 {
+			background-color: #EF6C00;
+			
+		}
+		
+		.BG_PINK_500 {
+			
+			background-color: #E91E63;
+		}
+		
+		.BG_LIGHT_BLUE_400 {
+			background-color: #29B6F6;
+		}
+		
+		.BG_LIGHT_BLUE_600 {
+			background-color: #039BE5;
+		}
+		
+		.BG_KHAKI_800 {
+			background-color: #697215;
+		}
+		
+		.BG_AMBER_800 {
+			background-color: #FF8F00;
+		}
+		
+		.BG_SAND_500 {
+			background-color: #cea43a;
+		}
+		.BG_SAND_700 {
+			background-color: #8e764b;
+		}
+		
+		.BG_SAND_800 {
+			background-color: #b5500b;
+		}
+		
+		.BG_TEAL_500 {
+			background-color: #009688;
+		}
+		
+		.mapOverlay {
+			position: absolute;
+			width: 100%;
+			visibility: hidden;
+			overflow: hidden;
+		}
+		.mapOverlay.ready {
+			visibility: visible;
+		}
+		</style>
+	</head>
+	<body>
+		<div class="searchboxContainer">
+			<div class="searchbox card card-shadow">			
+			</div>
+		</div>
+		<div class="mapOverlay">
+			<div class="compass"></div> 
+			<div class="center"></div>
+		</div>
+		<div id="map">
+		</div>
+		<div id="wrapper">
+			<div id="scroller">
+			    <ul>
+				    <li><div class="mapPlaceholder"></div></li>
+					<li><div class="transitLayer"></div></li>
+			    </ul>
+			</div>
+		</div>
+		<script type="text/x-handlebars-template" id="transitItem_template_bus">
+			<div class="transitItem card card-shadow">
+				<div class="name">
+					{{ busInfo.busNo }}
+				</div>
+				<p class="direction">
+					<i class="fa fa-flag"></i>
+					{{ direction }}
+				</p>
+				<p class="location">
+					{{ stationInfo.stationName }}
+				</p>
+				<div class="time">
+					{{#if isInactive}} 
+						<span>-</span>
+						<div class="minutes transperent">minutes</div>					
+					{{else}}
+						{{#if busInfo.predictTime}}
+							{{ busInfo.predictTime.[0] }}
+							<div class="minutes">minutes</div>
+						{{else}}
+						<span>-</span>
+						<div class="minutes transperent">minutes</div>
+						{{/if}}					
+					{{/if}}						
+				</div>
+			</div>			
+		</script>
+		<script type="text/x-handlebars-template" id="transitItem_template_subway">
+			<div class="transitItem card card-shadow">
+				<div class="name">
+					{{ stationInfo.lineName }}
+				</div>
+				<p class="direction">
+					<i class="fa fa-flag"></i>
+					{{ direction }}
+				</p>
+<!--
+				<p class="direction">
+					<i class="fa fa-arrow-circle-right"></i>
+					<i class="fa fa-flag"></i>
+					{{ nextStop.stationName }}
+				</p>
+-->
+				<p class="location">
+					{{ stationInfo.stationName }}
+				</p>
+				<div class="time">
+					{{#if isInactive}} 
+						<span>-</span>
+						<div class="minutes transperent">minutes</div>					
+					{{else}}
+						{{#if stationInfo.predictTime }}
+							{{ stationInfo.predictTime.[0].minutes }}
+							<div class="minutes">minutes</div>
+						{{else}}
+							<span>-</span>
+							<div class="minutes transperent">minutes</div>
+						{{/if}}					
+					{{/if}}	
+				</div>
+			</div>			
+		</script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/iScroll/5.1.3/iscroll-probe.min.js"></script>
+		<script src="https://npmcdn.com/imagesloaded@4.1/imagesloaded.pkgd.js"></script>
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/iScroll/5.1.3/iscroll-probe.min.js"></script>
+		<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.5.9/slick.min.js"></script>
+		<script src="lib/rebound.min.js"></script>
+    	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCfSX19mPtJLvEOrQMIyfBka6S8EYli5vY&language=ko"></script>
+		
+		<script src="js/controller.js"></script>
+		<script src="js/maps.js"></script>
+		<script src="js/view.js"></script>
+		<script src="js/model.js"></script>
+		<script src="js/api.js"></script>
+		<script src="js/app.js"></script>
+	</body>
+</html>
