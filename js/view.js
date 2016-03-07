@@ -311,6 +311,10 @@
 					var transit_ = JSON.parse(JSON.stringify(transit));
 					var stationName = transit_.stationInfo.stationName + '역';
 					if(stationName.indexOf('역역') === -1) transit_.stationInfo.stationName = stationName;
+										
+					var nextStopStationName = transit_.nextStop.stationName + '역';
+					if(nextStopStationName.indexOf('역역') === -1) transit_.nextStop.stationName = nextStopStationName;
+					
 					groupHTML += subwayTemplet(transit_);
 				}
 			});
@@ -333,6 +337,8 @@
       	// 그룹 별 노선이름 fixed 로 표시되도록 DOM 조작
       	$('.transitItemGroup').each(function(idx, el) {
 	      	$( $(el).find('.name')[0].outerHTML ).insertBefore( $(el).find('.slick-list') );
+	      	$( '<div class="tool"></div>' ).insertBefore( $(el).find('.slick-list') );
+	      	console.log($(el))
       	});
 
 		if($('#scroller').attr('data-position') !== undefined) {
@@ -346,8 +352,10 @@
 				probeType: 3
 			});
 		
+			var cardInitOffset = $('.transitItemGroup').length > 1 ? 123 : (($('.transitItemGroup').length === 1) ? 101 : 0);
+			
 			$('.mapPlaceholder').animate({
-			    height: $(window).innerHeight() - 123
+			    height: $(window).innerHeight() - cardInitOffset
 			}, {
 				duration: 800,
 			    step: function(now, fx){
@@ -366,7 +374,20 @@
 		// transitList
 		
 		setTimeout(this.updateMapLayout, 100);
-		this.updateBackgroundColor();
+		
+		
+		$('.transitItemGroup').on('click',function(){
+			if(!$(this).hasClass('expanded')){
+				$('.transitItemGroup').removeClass('expanded');
+			}
+			$(this).toggleClass('expanded');
+			$(this).on('transitionend webkitTransitionEnd oTransitionEnd', function () {
+				self.oScroll.refresh();
+				self.updateMapLayout();
+			});
+		});
+		
+		//this.updateBackgroundColor();
 	};
 	
 	View.prototype.updateBackgroundColor = function () {
