@@ -114,11 +114,11 @@
 			console.log('dragstart')
 			self.moveendTracker.touchStarted();
 		});
-
+/*
 		naver.maps.Event.addListener(this.oMap, 'drag', function(e) {
 			console.log('drag')
 		});
-
+*/
 		naver.maps.Event.addListener(this.oMap, 'dragend', function(e) {
 			console.log('dragend')
 			self.moveendTracker.touchEnded();
