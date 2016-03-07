@@ -48,7 +48,6 @@
 
 	// 이 요청은 자주 호출하면 서버가 죽으므로, 자주 하지 않도록 한다.
 	Api.prototype.saveLocation = function (position, callback) {
-		
 		var locationCache = JSON.parse(sessionStorage.getItem("locationCache"));
 
 		if(locationCache === "null") locationCache = null;
@@ -67,8 +66,6 @@
 
 						callback(JSON.parse(location));
 					} else if(locationCache) {
-						console.log(locationCache)
-
 						callback(locationCache);
 					}
 	    		}
@@ -88,6 +85,7 @@
 				// 	 stationDisplayName 
 				//   stationID 
 				//   x, y 정도 이용하면 될듯 
+				console.log("근처버스 정보 주새여")
 				
 				// liveUpdate / stationClass / type / cityCode 는 아직 쓸일 없을듯?			
 				Promise.all(
@@ -99,6 +97,8 @@
 						});
 					})
 				).then(function(BusStations){
+					console.log("근처버스 정보 받았네여")
+
 					// BusStations 를 이용해 각 버스의 next stop 이 어디인지 정보를 얻어온다
 					var stationID = BusStations[0].stationID;
 					var busID = BusStations[0].lane[0].busID;
@@ -131,6 +131,8 @@
 							});						
 						})
 					).then(function(buslaneInfos){
+						console.log("모든 버스라인 정보 받았네여")
+
 						// 버스레인 정보들을 BusStations 정보에 버무린 다음, callback 호출 
 						var buslaneInfoMap = {};
 						buslaneInfos.forEach(function(laneInfo) {
@@ -227,6 +229,7 @@
 						});
 											
 						// 한번더 정제한 후 주력 데이터 용으로 내벹자 transitInfo
+						console.log("busPromiseResolve resolved")
 						busPromiseResolve(transitInfo);
 					});
 				});	
@@ -390,6 +393,8 @@
 						});
 						
 						// 병합하러 보낸다.
+									console.log("subwayPromiseResolve resolved")
+
 						subwayPromiseResolve(resolvedSubwayTransitInfo)						
 					});
 				});
@@ -400,6 +405,7 @@
 			var resolvedTransitInfos = transitInfos[0].concat(transitInfos[1]);
 			// transitInfos 의 버스 & 지하철 정보를 나눠서 라인 단위의 1차원 배열로 만들고
 			// 현재위치에서 가까운 순으로 재배열 한 후 callback으로 넘긴다.
+			console.log("busPromise && subwayPromise resolved")
 			callback(resolvedTransitInfos);					
 		});
 	};

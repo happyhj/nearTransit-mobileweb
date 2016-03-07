@@ -14,11 +14,12 @@
 	     */
 	function View(template) {
 		this.maps = new app.Maps($('#map')[0]);
-		this.$searchbox = $(".searchbox");
+		this.$searchbox = $(".searchbox .label");
 		this.$compass = $(".compass");
 		
 		this.template = template;
 		var self = this;
+
 /*
 		this.template = template;
 
@@ -33,6 +34,34 @@
 		this.$toggleAll = qs('.toggle-all');
 		this.$newTodo = qs('.new-todo');
 */
+
+		var opts = {
+		  lines: 7 // The number of lines to draw
+		, length: 0 // The length of each line
+		, width: 5 // The line thickness
+		, radius: 7 // The radius of the inner circle
+		, scale: 1.25 // Scales overall size of the spinner
+		, corners: 1 // Corner roundness (0..1)
+		, color: '#2196F3' // #rgb or #rrggbb or array of colors
+		, opacity: 0.25 // Opacity of the lines
+		, rotate: 0 // The rotation offset
+		, direction: 1 // 1: clockwise, -1: counterclockwise
+		, speed: 1 // Rounds per second
+		, trail: 60 // Afterglow percentage
+		, fps: 20 // Frames per second when using setTimeout() as a fallback for CSS
+		, zIndex: 2e9 // The z-index (defaults to 2000000000)
+		, className: 'spinner' // The CSS class to assign to the spinner
+		, top: '50%' // Top position relative to parent
+		, left: '50%' // Left position relative to parent
+		, shadow: false // Whether to render a shadow
+		, hwaccel: false // Whether to use hardware acceleration
+		, position: 'absolute' // Element positioning
+		}
+
+		this.compassSpinner = new Spinner(opts).spin(this.$compass[0]);
+		//spinner.spin();
+
+
 
 		$(window).on('resize', function(){
 			$(self).trigger('resize');
@@ -51,7 +80,13 @@
 		});
 		
 		this.$compass.on('click', function() {
-			$(self).trigger('mapgotocurrent');
+			// 파란색인 경우 반응한다.
+			if(self.$compass.hasClass('ready')) {
+				$('.compass').append(self.compassSpinner.el)
+				$('.compass polygon').hide();
+		
+				$(self).trigger('mapgotocurrent');
+			}
 		});
 	}
 
@@ -63,9 +98,16 @@
 		var self = this;
 		var viewCommands = {
 			setMapCenter: function() {
-				var position = parameter;
+				var param = parameter;
+				var position = param.position;
+				var isMylocation = param.isMylocation;
+
 				if(!self.maps) return;
-				self.maps.setCenter(position);
+				self.maps.setCenter(position, isMylocation);
+				
+				// TODO : 콤파스 스피너 멈추기
+				$('.compass > .spinner').remove();
+				$('.compass polygon').show();
 			},
 			dimMapCenter: function() {
 				self.maps.dimCenter();
@@ -175,7 +217,6 @@
 			}
 		} else { // 지하철인 경우
 			var typeName = transit.stationInfo.cityName +'_' +transit.stationInfo.lineName;
-			console.log(transit.stationInfo.cityName +'_' +transit.stationInfo.lineName)
 			switch(typeName) {
 				case '수도권_4호선':
 					return 'BG_LIGHT_BLUE_600';
@@ -219,17 +260,15 @@
 
 	View.prototype.updateMapLayout = function () {
 		// TODO 첫 카드가 화면 상단 위로 스크롤 되어 지도가 화면에 보이지 않게 되면, 아래 로직이 작동하지 않도록 한다.
-		
-		
 		var searchBoxHeight = $('.searchbox')[0].offsetTop + $('.searchbox').height();
 		var scrollerTopPadding = $('.transitLayer')[0].offsetTop;
 		var scrollPosition = parseInt($('#scroller').css('transform').split(',')[5].replace(')',''));
 
 		var offset = window.innerHeight / 2 + (-1)* ((scrollerTopPadding - scrollerTopPadding + scrollPosition) / 2  + scrollerTopPadding / 2);
 
-		$('#map .gm-style').css('margin-top', -1 * offset);
+		$('#map').css('margin-top', -1 * offset);
 		$('.mapOverlay').css('height', scrollerTopPadding - searchBoxHeight + scrollPosition);
-		$('.mapOverlay').css('top', searchBoxHeight + $('.searchbox').height()/2);
+		$('.mapOverlay').css('top', searchBoxHeight ); // $('.searchbox').height()/2
 		
 		$('#scroller').attr('data-position', scrollPosition);
 
@@ -262,6 +301,11 @@
 			var groupHTML = '<div class="transitItemGroup '+ self.getThemeClasses(transitArr[0])+'">';
 			transitArr.forEach(function(transit){
 				if("busID" in transit) {
+					// 메모를 분리하자
+					if(transit.busInfo.busNo.indexOf('(') !== -1) {
+						transit.memo = transit.busInfo.busNo.split('(')[1].split(')')[0];
+						transit.busInfo.busNo = transit.busInfo.busNo.split('(')[0];
+					}
 					groupHTML += busTemplet(transit);
 				} else {
 					var transit_ = JSON.parse(JSON.stringify(transit));
@@ -273,16 +317,6 @@
 			groupHTML += '</div>';
 			html += groupHTML;
 		});
-		
-
-		if(this.oScroll) {
-//			console.log($('#scroller').attr('data-scroll-position-y'))
-		//	this.oScroll.scrollTo(0, parseInt($('#scroller').attr('data-scroll-position-y'))); 
-			
-			//$('.mapPlaceholder').css("height", $('.mapPlaceholder').attr('data-height'));
-		}
-		//	$('.mapPlaceholder').css("height", $('.mapPlaceholder').attr('data-height'));
-		//$('#scroller').attr('data-scroll-position-y', this.oScroll.getComputedPosition().y);
 		
 		$('.transitLayer').html(html);
 
@@ -303,7 +337,6 @@
 
 		if($('#scroller').attr('data-position') !== undefined) {
 			self.oScroll.refresh();
-			//self.oScroll.scrollTo(0, parseInt($('#scroller').attr('data-position')))
 			self.updateMapLayout();
 		} else {
 			$('.mapPlaceholder').css("height", $(window).innerHeight());

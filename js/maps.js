@@ -27,7 +27,7 @@
 
         var self = this;
         this.$map = $(container);
-        this.$center = $('.center');
+        this.$center = $('.center');        
  /*
  //       nhn.api.map.setDefaultPoint('LatLng');
 
@@ -45,26 +45,35 @@
             size : new nhn.api.map.Size($(window).innerWidth(), $(window).innerHeight())
 	    });
 */
+
 		this.initSpring();
 	}	
 	
-	Maps.prototype.setCenter = function(position) {
+	Maps.prototype.setCenter = function(position, isMylocation) {
 		if(!position) return;
 		if(!this.oMap) {
-			this.oMap = new google.maps.Map(this.$map[0], {
-				center: {lat: position.latitude, lng: position.longitude},
-				zoom: 16,
-				disableDefaultUI: true,
-				noClear: true
+			this.oMap = new naver.maps.Map(this.$map[0], {
+			    center: new naver.maps.LatLng(position.latitude, position.longitude),
+			    zoom: 11,
+			    disableKineticPan: false,
+			    minZoom: 3,
+			    maxZoom: 12
 			});
+
 			this.initEvents();
 		} else {
-			this.oMap.panTo({
-				lat: position.latitude,
-				lng: position.longitude
-			});			
+			var oPosition = new naver.maps.LatLng(position.latitude, position.longitude);
+			this.oMap.morph(oPosition, 11); // 중심 좌표 이동
 		}
-			
+		
+		// isMylocation 에 따라 DOT 의 색상을 바꾼다.
+		if(isMylocation) {
+			this.$center.addClass('mylocation');
+			$(".compass").removeClass('ready');					
+		} else {
+			this.$center.removeClass('mylocation');
+			$(".compass").addClass('ready');			
+		}
 	};
 	
 	Maps.prototype.initSpring = function () {
@@ -86,56 +95,40 @@
 	Maps.prototype.initEvents = function () {
 		var self = this;
 		
-		// there is 'load' event
-		imagesLoaded( this.$map[0], function() {
-			$(self).trigger('load');
-		});
-
-		this.oMap.addListener('dragend', function() {
+        this.moveendTracker = new MoveendTracker($('#map > div:first > div > div'), function(){
+	        console.log("moveend!!");
 			var center = self.oMap.getCenter();			
 			$(self).trigger('dragend', [{
 				latitude : center.lat(),
 				longitude : center.lng()
 			}]);
+        });
+
+		// there is 'load' event
+		imagesLoaded( this.$map[0], function() {
+			$(self).trigger('load');
 		});
 
-		this.oMap.addListener('dragstart', function() {
+		naver.maps.Event.addListener(this.oMap, 'dragstart', function(e) {
 			$(self).trigger('dragstart');
+			console.log('dragstart')
+			self.moveendTracker.touchStarted();
 		});
 
-
-/*
-		this.oMap.addListener('idle', function() {
-			console.log("idle");
-		});	
-*/	
-		
-			
-	
-/*
-				getCurrentCenterAddress(map, {
-				    success: function(address){
-					    $('.query').html(address);
-				    }
-				});
-*/
-			/*		
-		this.oMap.attach("move", function(data){
-			$(self).trigger('move', data.center);
-		});
-		
-		this.oMap.attach("dragstart", function(data){
-			$(self).trigger('dragstart', data.point);
+		naver.maps.Event.addListener(this.oMap, 'drag', function(e) {
+			console.log('drag')
 		});
 
-		this.oMap.attach("dragend", function(data){
-			$(self).trigger('dragend', data.point);
+		naver.maps.Event.addListener(this.oMap, 'dragend', function(e) {
+			console.log('dragend')
+			self.moveendTracker.touchEnded();
 		});
-		*/
 	};
 
 	Maps.prototype.dimCenter = function () {
 		this.$center.css("opacity", 0.6);
+		this.$center.removeClass('mylocation');
+		$(".compass").addClass('ready');		
 	};
 
 	Maps.prototype.undimCenter = function () {
@@ -143,7 +136,6 @@
 	};
 
 	Maps.prototype.pinCenter = function () {
-		//this.$center.css("opacity", 1);
 		this.$center.data('spring').setCurrentValue(-1);
 		this.$center.data('spring').setEndValue(0);
 	};
@@ -168,4 +160,38 @@
 	// Export to window
 	window.app = window.app || {};
 	window.app.Maps = Maps;
+	
+	
+
+	function MoveendTracker(element, callback) {
+		this.element = element;	
+		this.callback = callback;
+		this._matrix;
+		this.moveEndTimer;
+	}
+	
+	MoveendTracker.prototype.touchEnded = function() {
+		this._matrix = $(this.element).css("transform");
+		this.setMoveendObserver();
+	};
+	
+	MoveendTracker.prototype.touchStarted = function() {
+		this._matrix = null;
+		clearInterval(this.moveEndTimer);
+	};
+	
+	MoveendTracker.prototype.setMoveendObserver = function() {
+		var self = this;
+		this.moveEndTimer = setInterval(function() {
+			var newTransform =  $(self.element).css("transform");
+			if(self._matrix === newTransform) {
+				// 이벤트를 트리거하고 타이머를 없앤다
+				clearTimeout(self.moveEndTimer);
+				self.callback(); // 인자로 맵의 중앙 좌표를 넘긴다.
+			} else {
+				self._matrix = newTransform;
+			} 
+		}, 100);
+	};	
+	
 }(window));

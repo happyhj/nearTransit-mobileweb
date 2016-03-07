@@ -12,10 +12,13 @@ var mimeTypes = {
     "png": "image/png",
     "js": "text/javascript",
     "css": "text/css"};
-    
-var CLIENT_DOMAIN = os.networkInterfaces().en0[1].address;
 
+/*    
+var CLIENT_DOMAIN = os.networkInterfaces().en0[1].address;
 console.log("SERVER is on "+CLIENT_DOMAIN+":8080")
+*/
+var CLIENT_DOMAIN = "http://m2.map.naver.com";
+
 
 var proxy = httpProxy.createProxyServer({
   target: 'http://m.map.naver.com'

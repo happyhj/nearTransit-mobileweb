@@ -4,6 +4,7 @@
 	function Model(api) {
 		this.api = api;
 		this._data = {};
+		this.isMylocation = false;
 	}
 	
 	Model.prototype.update = function (updateCmd, parameter, callback) {
@@ -13,6 +14,7 @@
  				if(!parameter) {				
 					// 위치값이 주어지지 않은 경우 브라우저에서 현재위치를 받아온 뒤에 저장하고 callback을 실행한다.
 					navigator.geolocation.getCurrentPosition(function(position){
+						self.isMylocation = true;
 						self._data[updateCmd] = {
 							latitude: position.coords.latitude,
 							longitude: position.coords.longitude
@@ -26,11 +28,12 @@
 						});
 					});					
 				} else {
+					self.isMylocation = false;
 					// 위치 값이 주어진 경우 가져온 위치값 사용 
+					console.log("위치 값이 주어진 경우", parameter)
 					self._data[updateCmd] = parameter;
 					self.api.saveLocation(self._data[updateCmd], function(location) {
 						self._data[updateCmd].location = location;
-							console.log(self._data[updateCmd])
 						callback(self._data[updateCmd]);				
 					});
 				}

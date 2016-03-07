@@ -8,6 +8,7 @@
 		<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">	
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.5.9/slick.min.css">	
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.5.9/slick-theme.css">	
+		<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css'/>
 		<style>
 			@font-face {
 			    font-family: 'nanumsquareregular';
@@ -53,6 +54,9 @@
 			padding: 0; 
 		}
 
+		.center.mylocation {
+			background-color: #2196F3;
+		}
 		.center {
 			width: 24px;
 			height: 24px;
@@ -75,10 +79,12 @@
 		    box-sizing: border-box;
 		    height: 48px;
 		    border-bottom: 1px solid transparent;
-		    padding: 12px 10px 12px 10px;
+		    1padding: 12px 10px 12px 10px;
 		    transition-property: background,box-shadow;
-		    transition-duration: 0.3s;			
+		    transition-duration: 0.3s;	
+		    overflow: hidden;		
 		}
+		
 		
 		.searchboxContainer {
 		    position: fixed;
@@ -107,6 +113,10 @@
 		    text-align: center;
 		    
 		    box-shadow: 0 2px 4px rgba(0,0,0,0.2),0 -1px 0px rgba(0,0,0,0.02);
+		}
+		.searchbox .label { 
+			margin: 12px 10px 12px 10px;
+			display: block;
 		}
 		
 		.transitItemGroup {
@@ -147,6 +157,7 @@
 		    z-index: 200;
 		}
 		
+/*
 		.compass {
 			position: absolute;
 			top: 20px;
@@ -158,7 +169,8 @@
 			border-radius: 10px;
 			z-index: 30;
 			box-shadow: 2px 2px 7px rgba(0,0,0,.1);
-		}		
+		}	
+*/	
 		
 		#map {
 			overflow: hidden;
@@ -215,7 +227,10 @@
 		    text-shadow: 0px 1px 0px rgba(0,0,0,.3);
 		    font-kerning: normal;			
 		}
-		
+		.transitItemGroup > .name > .memo {
+		    font-size: 13px;
+			vertical-align: super;
+		}
 		.transitItem > .name {
 		    position: absolute;
 		    top: 9px;
@@ -424,16 +439,47 @@
 		.mapOverlay.ready {
 			visibility: visible;
 		}
+	
+		.compass.ready polygon {
+			fill: #2196F3;  
+			pointer-events: auto;
+		}
+		
+		.compass polygon {
+			fill: #CFD8DC; 
+			pointer-events: none;
+			text-shadow: 15px 13px 0px black;
+		}
+		
+		.widget-mylocation-button {
+		    background-color: rgba(255,255,255,1);
+		    border-radius: 2px;
+		    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+		    display: block;
+		    width: 40px;
+		    height: 40px;
+		    overflow: hidden;
+		    cursor: pointer;
+		    transition: background-color 0.16s ease-out;
+			position: absolute;
+			bottom: 12px;
+			left: 12px;
+			z-index: 30;
+		}
 		</style>
 	</head>
 	<body>
 		<div class="searchboxContainer">
-			<div class="searchbox card card-shadow">			
+			<div class="searchbox card card-shadow">
+				<span class="label"></span>		
 			</div>
 		</div>
 		<div class="mapOverlay">
-			<div class="compass"></div> 
-			<div class="center"></div>
+			<div class="compass widget-mylocation-button">
+				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="15 15 200 200" enable-background="new 0 0 200 200" xml:space="preserve" style="zoom: .5;"><polygon points="109.589,119.986 109.669,175.178 171.399,60.208 54.429,118.062 "></polygon></svg>				
+<!-- 				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 300 375" enable-background="new 0 0 300 300" xml:space="preserve"><polygon points="109.589,119.986 109.669,175.178 171.399,60.208 54.429,118.062 "/></svg> -->
+			</div> 
+			<div class="center mylocation"></div>
 		</div>
 		<div id="map">
 		</div>
@@ -449,6 +495,9 @@
 			<div class="transitItem card card-shadow">
 				<div class="name">
 					{{ busInfo.busNo }}
+					{{#if memo}} 
+						<span class="memo">({{ memo }})</span>
+					{{/if}}	
 				</div>
 				<p class="direction">
 					<i class="fa fa-flag"></i>
@@ -516,7 +565,12 @@
 		<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.5.9/slick.min.js"></script>
 		<script src="lib/rebound.min.js"></script>
-    	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCfSX19mPtJLvEOrQMIyfBka6S8EYli5vY&language=ko"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"> </script>
+					
+		<script src="http://test.openapi.map.naver.com/openapi/maps3.js"></script>
+		
+<!--     	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAf9_ky08m6xTxjW-ygkgYCCx9EuAHc0ms&language=ko"></script> -->
 		
 		<script src="js/controller.js"></script>
 		<script src="js/maps.js"></script>

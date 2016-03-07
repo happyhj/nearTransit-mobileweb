@@ -111,7 +111,11 @@
 		
 		var p1 = new Promise(function(resolve, reject) {			
 			self.model.update("position", undefined, function (data) {
-				self.view.render("setMapCenter", data);
+				console.log("model.update.position ", data)
+				self.view.render("setMapCenter", {
+					position: data,
+					isMylocation: self.model.isMylocation
+				});
 				self.view.render('updateAddressLabel', data);
 				resolve();
 			});
