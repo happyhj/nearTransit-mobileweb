@@ -376,7 +376,7 @@
 		setTimeout(this.updateMapLayout, 100);
 		
 		
-		$('.transitItemGroup').on('click',function(){
+		$('.transitItemGroup').on('click tap',function(){
 			if(!$(this).hasClass('expanded')){
 				$('.transitItemGroup').removeClass('expanded');
 			}
