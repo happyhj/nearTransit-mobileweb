@@ -68,13 +68,19 @@
 					console.log(bus, selectedGroup[0].busID);
 					$(self).trigger('tapMapmarker', [selectedGroup, idx, $transitItemGroup[0]]);							
 				}
-			} 
+			}
+			
+			if($(ev.target).closest('.stopMapView .nav .back').length > 0) {
+				$(document.body).removeClass('stopMapShow');
+			}
 		});
 
 
 		$('.stopMapView .nav .back').on('click', function(){		
 			$(document.body).removeClass('stopMapShow');
 		});
+
+
 				
 		this.template = template;
 
