@@ -76,9 +76,11 @@
 		});
 
 
+/*
 		$('.stopMapView .nav .back').on('click', function(){		
 			$(document.body).removeClass('stopMapShow');
 		});
+*/
 
 
 				
