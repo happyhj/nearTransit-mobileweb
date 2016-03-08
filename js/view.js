@@ -13,12 +13,70 @@
 	     *     Renders the given command with the options
 	     */
 	function View(template) {
+		var self = this;
+		
+		
 		this.maps = new app.Maps($('#map')[0]);
 		this.$searchbox = $(".searchbox .label");
 		this.$compass = $(".compass");
+
+		this.hammer;	
+		console.log("해머 초기화");
+		this.hammer = new Hammer($('.transitLayer')[0]);	
 		
+		this.hammer.on('tap', function(ev) {
+			if($(ev.target).closest('.tool').length > 0) return;
+			var $item = $($(ev.target).closest('.transitItemGroup'));
+			self.toggleItem($item);
+		})
+		
+		this.hammer.on('tap', function(ev) {
+			if($(ev.target).closest('.tool').length > 0) {
+				var idx;					
+				var $transitItemGroup = $(ev.target).closest('.transitItemGroup');			
+				var $transitItem = $transitItemGroup.find('.transitItem');
+				$transitItem.each(function(i,v){
+					if($(v).hasClass('slick-active')) {
+						idx = $(v).attr('data-slick-index');
+					}
+				});	
+				var subway = $transitItemGroup.attr('data-subway-id');
+				var bus = $transitItemGroup.attr('data-bus-id');
+				bus = bus.length === 0 ? undefined : bus;
+				subway = subway.length === 0 ? undefined : subway;
+
+				var selectedGroup;
+				self._activeTransitGroupedArray.some(function(group){
+					var _groupStInfo = group[0].stationInfo;
+					var busID = group[0].busID;
+					var subID = _groupStInfo.lineName ? _groupStInfo.cityName + '_' + _groupStInfo.lineName : undefined;
+					if(busID && bus && bus == busID) {
+						selectedGroup = group;
+					}
+					if( subway && subID && subway == subID ) {
+						selectedGroup = group;
+					}			
+				});	
+								
+				if($(ev.target).hasClass("favoriteBtn")) {		
+					$(self).trigger('tapFavorite', [{
+						busID : bus,
+						subwayID : subway,
+						groupEl: $transitItemGroup[0]
+					}]);							
+				} else if ($(ev.target).hasClass("mapMarkerBtn")) {
+					console.log(bus, selectedGroup[0].busID);
+					$(self).trigger('tapMapmarker', [selectedGroup, idx, $transitItemGroup[0]]);							
+				}
+			} 
+		});
+
+
+		$('.stopMapView .nav .back').on('click', function(){		
+			$(document.body).removeClass('stopMapShow');
+		});
+				
 		this.template = template;
-		var self = this;
 
 /*
 		this.template = template;
@@ -94,7 +152,7 @@
 			self.view.render('updateAddressLabel', data.address);
 			self.view.render('updateTransitList', data.transitList);	
 */
-	View.prototype.render = function (viewCmd, parameter) {
+	View.prototype.render = function (viewCmd, parameter, param2) {
 		var self = this;
 		var viewCommands = {
 			setMapCenter: function() {
@@ -124,7 +182,21 @@
 			},
 			updateTransitList: function() {
 				var transitList = parameter;
-				self.refreshTransitList(transitList);
+				var favMap = param2;
+				self.refreshTransitList(transitList, favMap);
+			}, 
+			openDetailView: function() {
+				var param = parameter;
+				console.log("openDetailView", param)
+			},  
+			closeDetailView: function() {
+				console.log("closeDetailView")
+			}, 
+			toggleFavorite: function() {
+				var groupEl = parameter;
+				$(groupEl).toggleClass('favorite');
+				//self.model.toggleFavorite(param.busID || param.subwayID);
+				console.log("toggleFavorite", groupEl)
 			}
 /*
 			updateAddressLabel: function () {
@@ -139,6 +211,48 @@
 		};
 
 		viewCommands[viewCmd]();
+	};
+
+	View.prototype.openDetailView = function (param) {
+		console.log("openDetailView", param.el)
+
+/*
+		param.transitArr 
+		param.idx 
+*/
+		var $nav = $('.stopMapView .nav');
+		var bgClass = param.el.classList.filter(function(v){
+			return v.indexOf('BG_') !== -1;
+		})[0]
+		// NAV배경 색 적용
+		var oldBgClasses = $nav[0].classList.filter(function(v){
+			return v.indexOf('BG_') !== -1;
+		}).forEach(function(v){
+			$nav.removeClass(v);
+		});
+		
+		$nav.addClass(bgClass);
+		
+		
+		// 판넬 하나씩 template 을 이용해 부분 HTML 을 만든다
+		
+		// 판넬 컨테이너에 붙여넣는다.
+		
+		// slickjs 를 활성화 시킨다.
+		// slickjs 의 위치는 param.idx 대로 설정한다.
+		
+		// 지도의 위치를 초기화한다.
+		
+		// 지도 위에 현재위치 (보라 or 파랑) 와 정류소 위치 ( 테마색 ) 를 표시한다
+		
+		// 정류소 위치 위에는 "역 이름과, 몇 분후 도착" 이라는 안내 툴팁을 띄운다. 
+		
+		
+		//---> 지도 부분은 slick js 페이지가 변할 경우에 다시 렌더링 하도록 설정한다.
+		
+		//// 이렇게 화면을 만들어서 
+		// 덮는다
+		$(document.body).addClass('stopMapShow')		
 	};
 
 	View.prototype._getTransitGroupedArray = function (transitList, isInactive) {
@@ -278,11 +392,11 @@
 		
 	};
 		
-	View.prototype.refreshTransitList = function (transitList) {
+	View.prototype.refreshTransitList = function (transitList, favMap) {
 		console.log("refreshTransitList with", transitList);
+				
 		var self = this;
-		var html = "";
-
+		var favMap = favMap;
 		var busTemplet = Handlebars.compile($("#transitItem_template_bus").html());
 		var subwayTemplet = Handlebars.compile($("#transitItem_template_subway").html());
 /*
@@ -297,8 +411,21 @@
 		// 활성화된 아이템을 화면에 뿌리기
 		var activeTransitGroupedArray = this._getTransitGroupedArray(transitList, false);
 
+		this._activeTransitGroupedArray = activeTransitGroupedArray;
+
+		var htmlArr = [];
 		activeTransitGroupedArray.forEach(function(transitArr){			
-			var groupHTML = '<div class="transitItemGroup '+ self.getThemeClasses(transitArr[0])+'">';
+			      			// busID or stationInfo.cityName_stationInfo.lineName
+  			if(transitArr[0].stationInfo.cityName && transitArr[0].stationInfo.lineName) {
+  				var subwayId = transitArr[0].stationInfo.cityName +'_' +transitArr[0].stationInfo.lineName;
+  			}
+  			
+  			var keyID = subwayId || transitArr[0].busID;
+  			
+  			
+  			var isFavorite = (!!favMap[keyID]);
+  			
+			var groupHTML = '<div class="transitItemGroup'+' '+ (isFavorite ? 'favorite' : '') +' '+self.getThemeClasses(transitArr[0]) + '" data-bus-id="'+(transitArr[0].busID || '') +'" data-subway-id="'+(subwayId || '') +'">';
 			transitArr.forEach(function(transit){
 				if("busID" in transit) {
 					// 메모를 분리하자
@@ -312,17 +439,26 @@
 					var stationName = transit_.stationInfo.stationName + '역';
 					if(stationName.indexOf('역역') === -1) transit_.stationInfo.stationName = stationName;
 										
-					var nextStopStationName = transit_.nextStop.stationName + '역';
-					if(nextStopStationName.indexOf('역역') === -1) transit_.nextStop.stationName = nextStopStationName;
-					
+					if(transit_.nextStop) {
+						var nextStopStationName = transit_.nextStop.stationName + '역';
+						if(nextStopStationName.indexOf('역역') === -1) transit_.nextStop.stationName = nextStopStationName;
+					}
 					groupHTML += subwayTemplet(transit_);
 				}
 			});
 			groupHTML += '</div>';
-			html += groupHTML;
+			
+			htmlArr.push(groupHTML);
 		});
 		
-		$('.transitLayer').html(html);
+		var favHtmlArr = htmlArr.filter(function(v){
+			return v.indexOf('transitItemGroup favorite') !== -1;
+		});
+		var nonFavHtmlArr = htmlArr.filter(function(v){
+			return v.indexOf('transitItemGroup favorite') === -1;
+		});
+								
+		$('.transitLayer').html(favHtmlArr.concat(nonFavHtmlArr));
 
 		$('.transitItemGroup').slick({
 			dots: true,
@@ -333,13 +469,17 @@
 			touchThreshold: 20,
 			speed: 150,
 		});
-      	
+
       	// 그룹 별 노선이름 fixed 로 표시되도록 DOM 조작
       	$('.transitItemGroup').each(function(idx, el) {
-	      	$( $(el).find('.name')[0].outerHTML ).insertBefore( $(el).find('.slick-list') );
-	      	$( '<div class="tool"></div>' ).insertBefore( $(el).find('.slick-list') );
-	      	console.log($(el))
+	      	var $slickList = $(el).find('.slick-list');
+	      	$( $(el).find('.name')[0].outerHTML ).insertBefore( $slickList );
+		  	$('<i class="fa fa-star fav"></i>').insertBefore( $slickList );
+	      	$( '<div class="tool"><i class="fa fa-map-marker mapMarkerBtn"></i><i class="fa fa-star favoriteBtn"></i></div>' ).insertBefore( $slickList );
       	});
+    	
+  	
+      	
 
 		if($('#scroller').attr('data-position') !== undefined) {
 			self.oScroll.refresh();
@@ -370,24 +510,32 @@
 		}
 
 		
+		$('.favoriteBtn').on("click", function(){
+			alert("어머 나를?");
+		});
+		
 		this.oScroll.on('scroll', this.updateMapLayout.bind(this));
 		// transitList
 		
 		setTimeout(this.updateMapLayout, 100);
-		
-		
-		$('.transitItemGroup').on('click tap',function(){
-			if(!$(this).hasClass('expanded')){
-				$('.transitItemGroup').removeClass('expanded');
-			}
-			$(this).toggleClass('expanded');
-			$(this).on('transitionend webkitTransitionEnd oTransitionEnd', function () {
-				self.oScroll.refresh();
-				self.updateMapLayout();
-			});
+/*
+		$('.transitItemGroup').on('click',function(){
+			self.toggleItem($(this));
 		});
-		
+*/
 		//this.updateBackgroundColor();
+	};
+	
+	View.prototype.toggleItem = function ($item) {
+		var self = this;
+		if(!$item.hasClass('expanded')){
+			$('.transitItemGroup.expanded').removeClass('expanded');
+		}
+		$item.toggleClass('expanded');
+		$item.on('transitionend webkitTransitionEnd oTransitionEnd', function () {
+			self.oScroll.refresh();
+			self.updateMapLayout();
+		});		
 	};
 	
 	View.prototype.updateBackgroundColor = function () {

@@ -54,8 +54,8 @@
 			//self.model.setPosition(center);
 			self.model.update("position", center, function (position) {
 				self.view.render('updateAddressLabel', position);
-				self.model.update("transitInfo", undefined, function (transitList) {
-					self.view.render('updateTransitList', transitList);
+				self.model.update("transitInfo", undefined, function (transitList, favMap) {
+					self.view.render('updateTransitList', transitList, favMap);
 				});
 				//self.view.render('updateTransitList', data.transitList);				
 			});
@@ -65,7 +65,21 @@
 			self.update();
 		});
 		
-									
+		$(self.view).on('tapFavorite', function (evt, param) {			
+			console.log('tapFavorite', param.busID, param.subwayID)
+			self.model.toggleFavorite(param.busID || param.subwayID);
+			self.view.render('toggleFavorite', param.groupEl);
+		});
+		
+		$(self.view).on('tapMapmarker', function (evt, selectedGroup, idx, el) {
+			self.view.render('openDetailView', {
+				transitArr: selectedGroup,
+				idx: idx,
+				el: el
+			});
+			console.log('tapMapmarker', selectedGroup, idx, el)
+		});	
+							
 		/*
 		self.view.bind('newTodo', function (title) {
 			self.addItem(title);
@@ -122,8 +136,8 @@
 		});
 
 		p1.then(function() {
-			self.model.update("transitInfo", undefined, function (transitList) {
-				self.view.render('updateTransitList', transitList);
+			self.model.update("transitInfo", undefined, function (transitList, favMap) {		
+				self.view.render('updateTransitList', transitList, favMap);
 			});
 		});
 	};

@@ -42,6 +42,12 @@
 				self.api.getTransitInfo(function(transitInfo) {
 					// 현재 좌표와 비교해서 가까운 순으로  재정렬한다.
 					var info = JSON.parse(JSON.stringify(transitInfo));
+					
+					// nextStop 없는 건 없앤다
+					info = info.filter(function(v){
+						return v.nextStop;
+					});
+					
 					info.sort(function(a, b) {
 						var position = {
 							x: self.getPosition().longitude,
@@ -57,13 +63,27 @@
 						return getDistance(position, a.stationInfo) - getDistance(position, b.stationInfo);
 					});
 					self._data['transitInfo'] = info;
-					callback(self._data['transitInfo']);		
+					callback(self._data['transitInfo'], self.getFavoriteMap());		
 				});
 			}
 		};	
 		updateCommands[updateCmd]();
 	};
-
+	
+	Model.prototype.toggleFavorite = function (uniqueGroupID) {
+		var favoriteMap = JSON.parse(localStorage.getItem('favoriteMap')) || {};
+		if(favoriteMap[uniqueGroupID]) {
+			delete favoriteMap[uniqueGroupID];
+		} else {
+			favoriteMap[uniqueGroupID] = true;
+		}
+		localStorage.setItem('favoriteMap',	JSON.stringify(favoriteMap));
+	};
+	
+	Model.prototype.getFavoriteMap = function () {
+		return JSON.parse(localStorage.getItem('favoriteMap')) || {};
+	};
+	
 	Model.prototype.getPosition = function () {
 		return this._data.position;
 	}

@@ -37,7 +37,10 @@
 		<title>Transit</title>
 		<style>
 
-		html, body {
+.slick-dots li button {
+    pointer-events: none;
+}
+		html, body, .home, .stopMapView {
 			position: relative;
 			margin: 0;
 			font-family: 'nanumsquarebold', sans-serif;
@@ -46,6 +49,28 @@
 			width: 100%;
 			overflow: hidden;
 		}
+		
+		.home {
+		    transition: transform .3s cubic-bezier(0.18, 1.01, 0.62, 0.98);;
+		}
+		
+		body.stopMapShow .home {
+		    transform: translateX(-50%);
+		} 
+		
+		.stopMapView {
+		    position: absolute;
+		    top: 0;
+		    left: 100%;
+		    background-color: white;
+		    z-index: 100;
+		    transition: left .3s cubic-bezier(0.18, 1.01, 0.62, 0.98);;
+		}
+		
+		body.stopMapShow .stopMapView {
+		    left: 0;
+		} 
+  
 		ul {
 			list-style: none;
 		}
@@ -120,6 +145,7 @@
 		}
 		
 		.transitItemGroup {
+			overflow: hidden;
 			background-color: rgba(0,0,0,.8);			
 			border-top: 1px solid rgba(0,0,0,.4);			
 			box-shadow: 0px 1px 0px rgba(255,255,255,.18) inset;
@@ -156,7 +182,13 @@
 		    position: relative;			
 		    z-index: 200;
 		}
-		
+		.empty {
+right: 12px;
+    top: -16px;
+    display: block;
+    position: absolute;
+			text-align: right;
+		}
 /*
 		.compass {
 			position: absolute;
@@ -222,6 +254,21 @@
 		.transitItemGroup {
 			transition: padding .3s linear;
 		}
+
+		.transitItemGroup > .fav {
+			display: none;
+		}
+		.transitItemGroup.favorite > .fav {
+			display: block;
+			position: absolute;
+			right: 4px;
+			top: 5px;
+			color: rgba(255,255,255,.87);
+			font-size: 12px;
+		}
+  		.transitItemGroup.favorite.invert > .fav {
+			color: rgba(0,0,0,.87);
+		}  
 		
 		.transitItemGroup > .name {
 		    position: absolute;
@@ -235,15 +282,27 @@
 		    font-size: 13px;
 			vertical-align: super;
 		}
-
+		
+		.transitItemGroup .tool i {
+		    display: inline-block;
+		    width: 50%;
+		    line-height: 39px;			
+		}
+		.transitItemGroup.invert .tool i {
+			color: rgba(0,0,0,.87);
+		}
 		.transitItemGroup .tool {
+			color: rgba(255,255,255,.87);
+			font-size: 22px;
+			text-align: center;
+
 			display: none;			
 		    position: absolute;
 		    top: 100px;
 		    width: 100%;
 		    height: 0;
 		    transition: height .3s linear;
-		    background-color: rgba(0,0,0,.4);
+		    background-color: rgba(0,0,0,.25);
 		}
 		.transitItemGroup.expanded .tool {
 		    height: 40px;
@@ -256,9 +315,13 @@
 			margin-left: 0;
 		}			
 
+		.slick-dots button {
+			display: none;	
+		}
+		
 		.transitItemGroup .time {
 			opacity: 1;
-			transition: opacity .3s linear;
+			1transition: opacity .3s linear;
 		}
 		.transitItemGroup.expanded .time {
 			opacity: 0;
@@ -269,12 +332,11 @@
 		}
 		.transitItemGroup.expanded .multiTime {
 			opacity: 1;
-			transition: opacity .3s linear;
-			    text-align: right;
+			text-align: right;
 		}
 		
 		.multiTime div:nth-child(2) {
-			    font-size: 21px;
+			    font-size: 19px;
 		}
 		.multiTime div:nth-child(2) .minutes {
 			    margin-left: -4px;
@@ -282,8 +344,8 @@
     
 		.transitItemGroup .nextStop{
 			opacity: 0;
-			margin-left: -20px;
-			transition: opacity .3s linear, margin-left .3s linear;
+			margin-left: -6px;
+			transition: opacity .3s linear, margin-left .3s ease;
 		}
 
 		.transitItemGroup .tool {
@@ -357,8 +419,9 @@
 		    text-shadow: 0px -1px 0px rgba(0,0,0,.3);
 		}
 		.transperent {
-			color: rgba(0,0,0,0);
-			overflow: hidden;
+			1display: block !important;
+			color: rgba(0,0,0,0) !important;
+    		overflow: hidden;
 			height: 0;
 		}
 		.slick-slider {
@@ -390,6 +453,39 @@
 			color: white;
 		}
 		
+
+		.stopMapView .nav {
+			position: absolute;
+			top:0;
+			left:0;
+			width: 100%;
+			height: 100px;
+			border-bottom: 1px solid transparent;
+			border-top: 1px solid rgba(0,0,0,.4);
+			box-shadow: 0 2px 4px rgba(0,0,0,0.2),0 -1px 0px rgba(0,0,0,0.02);
+			z-index: 10;
+		}
+		
+		.stopMapView .nav .back {
+		    width: 80px;
+		    padding-left: 10px;
+		    color: rgba(255,255,255,.87);
+		    position: absolute;
+		    font-size: 32px;
+		    top: 22px;
+		    left: 7px;
+		    text-shadow: 0px 1px rgba(0,0,0,0.4);	
+		}
+		
+		.stopMapView .stopMapContainer {
+		    width: 100%;
+		    position: absolute;
+		    top: 100px;
+		    left: 0;
+		    height: calc(100% - 100px);
+		    background-color: yellow;	
+		    z-index: 0;
+		};
 		
 		.BG_RED_500 {
 			background-color: #F44336;
@@ -532,9 +628,12 @@
 			display: inline;
 			margin-left: -7px;
 		}
+		
+
 		</style>
 	</head>
 	<body>
+	<div class="home">
 		<div class="searchboxContainer">
 			<div class="searchbox card card-shadow">
 				<span class="label"></span>		
@@ -557,6 +656,16 @@
 			    </ul>
 			</div>
 		</div>
+	</div>
+	<div class="stopMapView">
+		<div class="nav BG_BLUE_500">
+			<div class="back">
+				<i class="fa fa-angle-left"></i>
+			</div>
+		</div>
+		<div class="stopMapContainer"></div>
+	</div>
+
 		<script type="text/x-handlebars-template" id="transitItem_template_bus">
 			<div class="transitItem card card-shadow">
 				<div class="name">
@@ -577,22 +686,23 @@
 				</p>
 				<div class="time">
 					{{#if isInactive}} 
-						<span>-</span>
+						<span class="empty">-</span>
 						<div class="minutes transperent">minutes</div>					
 					{{else}}
 						{{#if busInfo.predictTime}}
 							{{ busInfo.predictTime.[0] }}
 							<div class="minutes">minutes</div>
 						{{else}}
-						<span>-</span>
+						<span class="empty">-</span>
 						<div class="minutes transperent">minutes</div>
 						{{/if}}					
 					{{/if}}						
 				</div>
-				<div class="multiTime time">
+		
+				<div class="multiTime time" >
 					{{#if isInactive}} 
-						<span>-</span>
-						<div class="minutes transperent">minutes</div>					
+						<span class="empty">-</span>
+						<div class="minutes transperent" style='display: block;'>minutes</div>					
 					{{else}}
 						{{#if busInfo.predictTime}}
 							<div>{{ busInfo.predictTime.[0] }} 
@@ -600,8 +710,8 @@
 							<div>{{ busInfo.predictTime.[1] }}
 							<div class="minutes">min</div></div>
 						{{else}}
-						<span>-</span>
-						<div class="minutes transperent">minutes</div>
+						<span class="empty">-</span>
+						<div class="minutes transperent" style='display: block;'>minutes</div>					
 						{{/if}}							
 					{{/if}}						
 				</div>
@@ -631,19 +741,37 @@
 				</p>
 				<div class="time">
 					{{#if isInactive}} 
-						<span>-</span>
+						<span class="empty">-</span>
 						<div class="minutes transperent">minutes</div>					
 					{{else}}
 						{{#if stationInfo.predictTime }}
-							{{ stationInfo.predictTime.[0].minutes }}
-							<div class="minutes">minutes</div>
+							<div>{{ stationInfo.predictTime.[0].minutes }}
+							<div class="minutes">minutes</div></div>
 						{{else}}
-							<span>-</span>
-							<div class="minutes transperent">minutes</div>
+							<span class="empty">-</span>
+							<div class="minutes transperent" style='display: block;'>minutes</div>					
 						{{/if}}					
 					{{/if}}	
 				</div>
+				<div class="multiTime time" >
+					{{#if isInactive}} 
+						<span class="empty">-</span>
+						<div class="minutes transperent" style='display: block;'>minutes</div>					
+					{{else}}
+						{{#if stationInfo.predictTime}}
+							<div>{{ stationInfo.predictTime.[0].minutes }} 
+							<div class="minutes">min</div><br/></div>
+							<div>{{ stationInfo.predictTime.[1].minutes }}
+							<div class="minutes">min</div></div>
+						{{else}}
+						<span class="empty">-</span>
+						<div class="minutes transperent">minutes</div>
+						{{/if}}							
+					{{/if}}						
+				</div>
 			</div>			
+	
+
 		</script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
@@ -655,8 +783,8 @@
 		<script src="lib/rebound.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"> </script>
-		<script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>		
 		<script src="http://test.openapi.map.naver.com/openapi/maps3.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.6/hammer.min.js"></script>
 		
 <!--     	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAf9_ky08m6xTxjW-ygkgYCCx9EuAHc0ms&language=ko"></script> -->
 		
