@@ -187,7 +187,7 @@
 			}, 
 			openDetailView: function() {
 				var param = parameter;
-				console.log("openDetailView", param)
+				self.openDetailView(param);
 			},  
 			closeDetailView: function() {
 				console.log("closeDetailView")
@@ -214,18 +214,34 @@
 	};
 
 	View.prototype.openDetailView = function (param) {
-		console.log("openDetailView", param.el)
+		console.log("openDetailView",  param.el.classList)
 
 /*
 		param.transitArr 
 		param.idx 
 */
 		var $nav = $('.stopMapView .nav');
+		var bgClass = [].filter.call(param.el.classList, function(v){
+			return v.indexOf('BG_') !== -1;
+		})[0]
+		
+		var isInvert = [].filter.call(param.el.classList, function(v){
+			return v.indexOf('invert') !== -1;
+		}).length === 1;
+		
+		if(isInvert) {
+			$nav.addClass('invert');
+		} else {
+			$nav.removeClass('invert');
+		}
+		
+/*
 		var bgClass = param.el.classList.filter(function(v){
 			return v.indexOf('BG_') !== -1;
 		})[0]
+*/
 		// NAV배경 색 적용
-		var oldBgClasses = $nav[0].classList.filter(function(v){
+		var oldBgClasses = [].filter.call($nav[0].classList, function(v){
 			return v.indexOf('BG_') !== -1;
 		}).forEach(function(v){
 			$nav.removeClass(v);

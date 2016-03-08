@@ -72,12 +72,12 @@
 		});
 		
 		$(self.view).on('tapMapmarker', function (evt, selectedGroup, idx, el) {
+			console.log('tapMapmarker', selectedGroup, idx, el)
 			self.view.render('openDetailView', {
 				transitArr: selectedGroup,
 				idx: idx,
 				el: el
 			});
-			console.log('tapMapmarker', selectedGroup, idx, el)
 		});	
 							
 		/*
