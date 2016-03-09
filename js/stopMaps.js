@@ -72,13 +72,13 @@
 			    maxZoom: 12
 			});			
 		} else if(!!this.isNeedToRefesh) {
-			this.oMap.fitBounds(bound, { top: 60, right: 30, bottom: 30, left: 10 } );
+			this.oMap.fitBounds(bound, { top: 60, right: 80, bottom: 30, left: 80 } );
 			this.isNeedToRefesh = false;	
 		} else {
 			var oPosition = new naver.maps.LatLng(stopInfo.y, stopInfo.x);
 			//this.oMap.morph(bound); // 중심 좌표 이동
 			// panToBounds // fitBounds
-			this.oMap.panToBounds(bound, { top: 60, right: 30, bottom: 30, left: 10 } );
+			this.oMap.panToBounds(bound, { top: 60, right: 80, bottom: 30, left: 80 } );
 		}
 		
 		this._aStopMarker.forEach(function(marker){
