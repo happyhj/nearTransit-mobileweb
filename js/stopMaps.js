@@ -71,7 +71,11 @@
 			    minZoom: 3,
 			    maxZoom: 12
 			});			
-		} else if(!!this.isNeedToRefesh) {
+		} else {
+			this.oMap.fitBounds(bound, { top: 90, right: 90, bottom: 30, left: 90 } );
+		}
+		/*
+ else if(!!this.isNeedToRefesh) {
 			this.oMap.fitBounds(bound, { top: 90, right: 90, bottom: 30, left: 90 } );
 			this.isNeedToRefesh = false;	
 		} else {
@@ -81,6 +85,7 @@
 			this.oMap.panToBounds(bound, { top: 90, right: 90, bottom: 30, left: 90 } );
 		}
 		
+*/
 		this._aStopMarker.forEach(function(marker){
 			marker = undefined;
 		});

@@ -200,6 +200,21 @@
 				var transitList = parameter;
 				var favMap = param2;
 				self.refreshTransitList(transitList, favMap);
+
+				// scroll 중이면 scrollEnd 이벤트 발생하면 실행하도록 한다.
+				/*
+				if(!self._isScrolling) {
+					self.refreshTransitList(transitList, favMap);
+				} else {
+					self._updateHandlerCache = function(){
+						this.refreshTransitList(transitList, favMap);
+						this.oScroll.off('scrollEnd', this._updateHandlerCache);
+					}.bind(self);
+					
+					self.oScroll.on('scrollEnd', self._updateHandlerCache );
+				}
+				*/
+				
 			}, 
 			openDetailView: function() {
 				var param = parameter;
@@ -595,6 +610,17 @@
 		});
 		
 		this.oScroll.on('scroll', this.updateMapLayout.bind(this));
+		
+		this.oScroll.on('scrollStart', function(){
+			self._isScrolling = true;
+		});
+
+		this.oScroll.on('scrollEnd', function(){
+			self._isScrolling = false;
+		});
+
+
+		
 		// transitList
 		
 	//	setTimeout(this.updateMapLayout, 100);

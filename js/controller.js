@@ -158,7 +158,7 @@
 	}
 	
 	Controller.prototype.onAutoUpdate = function () {
-		this._autoUpdateTimer = setInterval( this.updateJustTransitInfo.bind(this), 10000);
+		//this._autoUpdateTimer = setInterval( this.updateJustTransitInfo.bind(this), 10000);
 	};
 	
 	Controller.prototype.offAutoUpdate = function () {
