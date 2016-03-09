@@ -17,6 +17,8 @@
 		
 		
 		this.maps = new app.Maps($('#map')[0]);
+		this.stopMaps = new app.StopMaps($('.stopMapContainer')[0]);
+
 		this.$searchbox = $(".searchbox .label");
 		this.$compass = $(".compass");
 
@@ -82,6 +84,8 @@
 
 		$('.stopMapView .nav .back').on('click', function(){		
 			$(document.body).removeClass('stopMapShow');
+			self.stopMaps.destroyMap();
+			$(self).trigger('closeStopMapView');
 		});
 
 
@@ -207,6 +211,12 @@
 				$(groupEl).toggleClass('favorite');
 				//self.model.toggleFavorite(param.busID || param.subwayID);
 				console.log("toggleFavorite", groupEl)
+			},
+			renderStopMap: function() {
+				var stopInfo = parameter;
+				// 현재정보 까지 controller 에서 담아오는 것을 가정한다.
+				// transit 정보
+				self.stopMaps.renderMap(stopInfo);
 			}
 /*
 			updateAddressLabel: function () {
@@ -222,10 +232,24 @@
 
 		viewCommands[viewCmd]();
 	};
-
+	
+	View.prototype.showLoader = function () {
+		setTimeout(function() {
+			$('.mapOverlay .center .showbox').show();
+			//$('.mapOverlay .center').html($('#center_loader').html());
+			console.log('showLoader', $('.mapOverlay .mylocation').html())
+		}, 500);
+	};
+	
+	View.prototype.hideLoader = function () {
+			$('.mapOverlay .center .showbox').hide();
+		//$('.mapOverlay .center').empty();
+	};
+	
 	View.prototype.openDetailView = function (param) {
 		console.log("openDetailView",  param.el.classList)
-
+		var self = this;
+		this._stopMapCache = param;
 /*
 		param.transitArr 
 		param.idx 
@@ -261,21 +285,49 @@
 		
 		
 		// 판넬 하나씩 template 을 이용해 부분 HTML 을 만든다
-		
+		var DirectionPanelHtml = '';
+		param.transitArr.forEach(function(transit){
+			DirectionPanelHtml += '<div><p class="direction"><i class="fa fa-flag"></i>'+transit.direction +'</p></div>';
+		})
+			
 		// 판넬 컨테이너에 붙여넣는다.
+		$('.stopMapView .panelContainer').html('');
+		$('.stopMapView .panelContainer').removeClass('slick-initialized slick-slider')
+		console.log(' 판넬 컨테이너에 붙여넣는다.', DirectionPanelHtml)
+		$('.stopMapView .panelContainer').html(DirectionPanelHtml);
+
 		
 		// slickjs 를 활성화 시킨다.
+		$('.stopMapView .panelContainer').slick({
+			centerMode: true,
+			centerPadding: '30px',
+			slidesToShow: 1,
+			variableWidth: true,
+			dots: false,
+			//fade: true,
+			arrows: false,
+			edgeFriction: 0.33,
+			infinite: false,
+			touchThreshold: 20,
+			speed: 150,
+		});
+
+		$('.stopMapView .panelContainer').on('afterChange', function(event, slick, currentSlide){
+			$(self).trigger("stopMapPositionChange", [self._stopMapCache.transitArr[currentSlide]]);
+		});
+
+      	// 노선이름 fixed 로 표시되도록 DOM 조작
+		var $slickList = $('.stopMapView .panelContainer .slick-list');
+	    $( $(param.el).find('.name')[0].outerHTML ).insertBefore( $slickList );
+
 		// slickjs 의 위치는 param.idx 대로 설정한다.
-		
-		// 지도의 위치를 초기화한다.
-		
-		// 지도 위에 현재위치 (보라 or 파랑) 와 정류소 위치 ( 테마색 ) 를 표시한다
-		
-		// 정류소 위치 위에는 "역 이름과, 몇 분후 도착" 이라는 안내 툴팁을 띄운다. 
+		$('.stopMapView .panelContainer').slick('slickGoTo', param.idx, true);			
 		
 		
-		//---> 지도 부분은 slick js 페이지가 변할 경우에 다시 렌더링 하도록 설정한다.
-		
+		if(param.transitArr.length === 1) {
+			$(self).trigger("stopMapPositionChange", [self._stopMapCache.transitArr[param.idx]]);
+		}
+			
 		//// 이렇게 화면을 만들어서 
 		// 덮는다
 		$(document.body).addClass('stopMapShow')		
@@ -543,7 +595,7 @@
 		this.oScroll.on('scroll', this.updateMapLayout.bind(this));
 		// transitList
 		
-		setTimeout(this.updateMapLayout, 100);
+	//	setTimeout(this.updateMapLayout, 100);
 /*
 		$('.transitItemGroup').on('click',function(){
 			self.toggleItem($(this));

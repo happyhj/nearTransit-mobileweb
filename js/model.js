@@ -28,7 +28,7 @@
 						});
 					});					
 				} else {
-					self.isMylocation = false;
+//					self.isMylocation = false;
 					// 위치 값이 주어진 경우 가져온 위치값 사용 
 					console.log("위치 값이 주어진 경우", parameter)
 					self._data[updateCmd] = parameter;

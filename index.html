@@ -35,6 +35,127 @@
 			}
 		</style>
 		<title>Transit</title>
+<style>
+.showbox {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 5%;
+}
+
+.loader {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    margin: 0px auto;
+    width: 34px;
+    opacity: .87;
+}
+.loader:before {
+  content: '';
+  display: block;
+  padding-top: 100%;
+}
+
+.circular {
+  -webkit-animation: rotate 2s linear infinite;
+          animation: rotate 2s linear infinite;
+  height: 100%;
+  -webkit-transform-origin: center center;
+          transform-origin: center center;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+
+.path {
+  stroke-dasharray: 1,200;
+  stroke-dashoffset: 0;
+  -webkit-animation: dash 1.5s ease-in-out infinite, color 6s ease-in-out infinite;
+          animation: dash 1.5s ease-in-out infinite, color 6s ease-in-out infinite;
+  stroke-linecap: round;
+}
+
+@-webkit-keyframes rotate {
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+
+@keyframes rotate {
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+@-webkit-keyframes dash {
+  0% {
+    stroke-dasharray: 1,200;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 89,200;
+    stroke-dashoffset: -35px;
+  }
+  100% {
+    stroke-dasharray: 89,200;
+    stroke-dashoffset: -124px;
+  }
+}
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1,200;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 89,200;
+    stroke-dashoffset: -35px;
+  }
+  100% {
+    stroke-dasharray: 89,200;
+    stroke-dashoffset: -124px;
+  }
+}
+@-webkit-keyframes color {
+  100%, 0% {
+    stroke: #fff;
+  }
+  40% {
+    stroke: #fff;
+  }
+  66% {
+    stroke: #fff;
+  }
+  80%, 90% {
+    stroke: #fff;
+  }
+}
+/*
+@keyframes color {
+  100%, 0% {
+    stroke: #d62d20;
+  }
+  40% {
+    stroke: #0057e7;
+  }
+  66% {
+    stroke: #008744;
+  }
+  80%, 90% {
+    stroke: #ffa700;
+  }
+}
+*/
+
+</style>
 		<style>
 
 .slick-dots li button {
@@ -83,6 +204,7 @@
 			background-color: #2196F3;
 		}
 		.center {
+			box-shadow: 0px 3px 23px rgba(0,0,0,.3);
 			width: 24px;
 			height: 24px;
 			position: absolute;
@@ -465,14 +587,16 @@ right: 12px;
 			box-shadow: 0 2px 4px rgba(0,0,0,0.2),0 -1px 0px rgba(0,0,0,0.02);
 			z-index: 10;
 		}
-		.stopMapView .nav.invert {
+		.stopMapView .nav.invert,
+		.stopMapView .nav.invert * {
 		    color: rgba(0,0,0,.87);
 		}		
-		.stopMapView .nav {
+		.stopMapView .nav,
+		.stopMapView .nav * {
 		    color: rgba(255,255,255,.87);
 		}
 		.stopMapView .nav.invert .back {
-		    color: rgba(0,0,0,.87);
+		    color: rgba(0,0,0,.87) ;
 		}
 		.stopMapView .nav .back {
 		    width: 80px;
@@ -482,7 +606,7 @@ right: 12px;
 		    font-size: 32px;
 		    top: 22px;
 		    left: 7px;
-		    text-shadow: 0px 1px rgba(0,0,0,0.4);	
+			text-shadow: 0px 1px 0px rgba(0,0,0,.3);	
 		}
 		
 		.stopMapView .stopMapContainer {
@@ -636,7 +760,101 @@ right: 12px;
 			display: inline;
 			margin-left: -7px;
 		}
+		.stopMapView .panelContainer > div {
+			width: 100px;
+			height: 100px;
+		    left: 50%;
+			transform: translateX(-50%);
+			overflow: visible;
+			z-index: 100;
+		}
+		.stopMapView .panelContainer {
+		    border-bottom: 1px solid rgba(0,0,0,.4);
+		}
 		
+		.stopMapView .back {
+			z-index: 1000;
+		}
+		.slick-slide {
+			outline: none;
+		}
+		.stopMapView .panelContainer .direction {
+			position: relative;
+			text-align: center;
+			left:0;
+			top: 53px;
+			padding: 0 40px;
+		    color: rgba(255,255,255,.87);
+		    text-shadow: none;		
+		}
+		
+		
+		.stopMapView .nav.invert .panelContainer .direction {
+		    color: rgba(0,0,0,.87);
+		}
+
+		.stopMapView .panelContainer .slick-slide .direction {
+			opacity: .5;
+		}		
+		.stopMapView .panelContainer .slick-slide.slick-center .direction {
+			opacity: 1;
+		}
+		
+		.stopMapView .panelContainer .direction i{
+			position: relative;
+			text-align: center;
+			left:0;
+			margin-right: 3px;
+		}
+		
+		.stopMapView .panelContainer > .name {
+			position: absolute;
+			top: 20px;
+			left: 50%;
+			width: 100%;
+			text-align: center;
+			font-size: 38px;
+			text-shadow: 0px 1px 0px rgba(0,0,0,.3);
+			font-kerning: normal;			
+		}	    
+   
+		.stopMarker {
+			transform: translate(-50%,-50%);
+		    width: 24px;
+		    height: 24px;
+		    z-index: 30;
+		    border-radius: 20px;
+		    box-sizing: border-box;
+		    box-shadow: 0px 2px 8px rgba(0,0,0,.4);
+		}
+		
+		.curruntPositionMarker {
+			transform: translate(-50%,-50%);
+		    width: 24px;
+		    height: 24px;
+		    z-index: 30;
+		    border-radius: 20px;
+		    box-sizing: border-box;
+		    box-shadow: 0px 2px 8px rgba(0,0,0,.4);
+		}
+		
+		
+		.stopNameContainer {       
+		    position: absolute;
+		    top: -73px;
+		    background-color: #fff;
+		    text-align: center;
+		    transform: translateX(-50%);
+		    padding: 4px 8px;
+		    border-radius: 2px;
+		    box-shadow: 0 2px 4px rgba(0,0,0,0.2),0 -1px 0px rgba(0,0,0,0.02);		
+		    white-space: nowrap;	
+		}
+		.stopNameContainer .min {
+		    color: rgba(0,0,0,.57);
+		    font-size: 14px;			
+		}
+
 
 		</style>
 	</head>
@@ -652,7 +870,15 @@ right: 12px;
 				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="15 15 200 200" enable-background="new 0 0 200 200" xml:space="preserve" style="zoom: .5;"><polygon points="109.589,119.986 109.669,175.178 171.399,60.208 54.429,118.062 "></polygon></svg>				
 <!-- 				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 300 375" enable-background="new 0 0 300 300" xml:space="preserve"><polygon points="109.589,119.986 109.669,175.178 171.399,60.208 54.429,118.062 "/></svg> -->
 			</div> 
-			<div class="center mylocation"></div>
+			<div class="center mylocation">	
+			<div class="showbox">
+			  <div class="loader">
+			    <svg class="circular" viewBox="25 25 50 50">
+			      <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="6" stroke-miterlimit="10"/>
+			    </svg>
+			  </div>
+			</div>
+			</div>
 		</div>
 		<div id="map">
 		</div>
@@ -670,10 +896,19 @@ right: 12px;
 			<div class="back">
 				<i class="fa fa-angle-left"></i>
 			</div>
+			<div class="panelContainer"></div>
 		</div>
 		<div class="stopMapContainer"></div>
 	</div>
-
+		<script type="text/x-handlebars-template" id="center_loader">
+			<div class="showbox">
+			  <div class="loader">
+			    <svg class="circular" viewBox="25 25 50 50">
+			      <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="6" stroke-miterlimit="10"/>
+			    </svg>
+			  </div>
+			</div>
+		</script>
 		<script type="text/x-handlebars-template" id="transitItem_template_bus">
 			<div class="transitItem card card-shadow">
 				<div class="name">
@@ -778,8 +1013,6 @@ right: 12px;
 					{{/if}}						
 				</div>
 			</div>			
-	
-
 		</script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
@@ -798,6 +1031,7 @@ right: 12px;
 		
 		<script src="js/controller.js"></script>
 		<script src="js/maps.js"></script>
+		<script src="js/stopMaps.js"></script>
 		<script src="js/view.js"></script>
 		<script src="js/model.js"></script>
 		<script src="js/api.js"></script>
