@@ -46,8 +46,9 @@
 
 //		this.initSpring();
 	}	
-	StopMaps.prototype.destroyMap = function(stopInfo) {
+	StopMaps.prototype.destroyMap = function() {
 		this.isNeedToRefesh = true;
+		console.log("destroyMap",this.isNeedToRefesh, this)
 		//this.$map.html('');
 		//this.oMap.destroy();
 	};
@@ -60,7 +61,7 @@
 		    new naver.maps.LatLng(stopInfo.y, stopInfo.x),
 		    new naver.maps.LatLng(stopInfo.currunt.position.latitude, stopInfo.currunt.position.longitude)
 		);
-
+		console.log("this.isNeedToRefesh", this.isNeedToRefesh);
 		if(!this.oMap) {
 			this.oMap = new naver.maps.Map(this.$map[0], {
 			    center: new naver.maps.LatLng(stopInfo.y, stopInfo.x),

@@ -79,6 +79,8 @@
 		this.hammer_stopmap.on('tap', function(ev) {
 			if($(ev.target).closest('.stopMapView .nav .back').length > 0) {
 				$(document.body).removeClass('stopMapShow');
+				self.stopMaps.destroyMap();
+				$(self).trigger('closeStopMapView');
 			}	
 		});
 
