@@ -89,7 +89,7 @@
 			self.stopMaps.destroyMap();
 			$(self).trigger('closeStopMapView');
 		});
-		
+/*
 		$('.routeBtn').on('click', function(){		
 			self.openRouteView();
 		});		
@@ -97,6 +97,7 @@
 		$('.routeView .nav .cancel').on('click', function() {
 			self.closeRouteView();
 		});
+*/
 					
 		this.template = template;
 
@@ -269,15 +270,7 @@
 		//$('.mapOverlay .center').empty();
 	};
 	
-	View.prototype.openRouteView = function (param) {
-		// 현재 위치를 출발점으로 해서 라우트 뷰를 보여준다.
-		$(document.body).addClass('routeShow')		
-	};
 
-	View.prototype.closeRouteView = function (param) {
-		// 현재 위치를 출발점으로 해서 라우트 뷰를 보여준다.
-		$(document.body).removeClass('routeShow')		
-	};
 	
 	
 	View.prototype.openDetailView = function (param) {

@@ -448,7 +448,28 @@
 			}
 		})
 		.done(function( data ) {
-			callback(JSON.parse(data).result.site.list);
+			var result = JSON.parse(data).result;
+			var list = result && result.site && result.site.list
+			callback(list || []);
+		});		
+	};
+
+	Api.prototype.searchRoute = function (data, callback) { 
+		var start = data.start;
+		var destination = data.end;
+		$.ajax({
+			url: "/api/findroute2/searchPubtransPath.nhn",
+			type: "get", //send it through get method
+			data:{
+				apiVersion: "3",
+				searchType: "0",
+				start: [start.lng, start.lat, start.name || start.address].join(','),//"127.7278940,37.8787420,LF아울렛",
+				destination:  [destination.lng, destination.lat, destination.name || destination.address].join(','),		
+			}
+		})
+		.done(function( data ) {
+			var result = JSON.parse(data).result;
+			callback(result);
 		});		
 	};
 

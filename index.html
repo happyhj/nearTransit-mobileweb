@@ -193,6 +193,8 @@
 		}
 		
 		.routeView {
+		     
+    height: 100%;
 		        width: 100%;
 		    position: absolute;
 		    top: -100%;
@@ -207,6 +209,11 @@
 		} 
 
 		.routeView .nav {			
+/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+54,000000+100&0.65+0,0+30,0+80 */
+background: -moz-linear-gradient(top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 54%, rgba(0,0,0,0) 80%, rgba(0,0,0,0) 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(top, rgba(0,0,0,0.65) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,0) 54%,rgba(0,0,0,0) 80%,rgba(0,0,0,0) 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to bottom, rgba(0,0,0,0.65) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,0) 54%,rgba(0,0,0,0) 80%,rgba(0,0,0,0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a6000000', endColorstr='#00000000',GradientType=0 ); /* IE6-9 */
     width: 100%;
     height: 74px;
     background-color: white;
@@ -240,8 +247,12 @@
 		    transform: translateX(-50%);
 				}	
 				.routeView .locationContainer {
-				    width: 100%;
-		    height: 74px;
+		      border-bottom: 1px solid rgba(0,0,0,.4);
+	     box-shadow: 0 2px 4px rgba(0,0,0,0.2),0 -1px 0px rgba(0,0,0,0.02);
+
+		    padding-top: 1px;   
+		    height: 112px;		
+		    width: 100%;
 		    background-color: rgb(220,220,220);
 		    position: relative;
 		    /* padding: 8px; */
@@ -253,17 +264,25 @@
 		.routeView .locationContainer	.exchangeBtn {
 		    /* height: 100%; */
 		    position: absolute;
+		       line-height: 96px;
 		    top: 8px;
 		    right: 8px;
 		    bottom: 8px;
 		    width: 30px;
 		    background-color: rgba(0,0,0,.3);
 		    text-align: center;
-		    line-height: 58px;
+		    height: 96px;
 		    color: white;
 		    border-radius: 2px;
 		    vertical-align: middle;
 		}	
+				.routeView .timelineContainer {
+    position: absolute;
+    1background-color: yellow;
+    height: calc(100% - 186px);
+    width: 100%;
+    overflow: scroll;
+    }
 		.exchangeBtn i {
 		    transform: rotateZ(90deg);
 		}
@@ -951,6 +970,73 @@ right: 12px;
 		.routeBtn {
 			fill: rgba(0,0,0,.5);
 		}
+		
+		.startInputContainer,
+		.endInputContainer {
+		    pointer-events: all;
+		    position: relative;
+		    background: #fff;
+    height: 43px;
+			margin: 8px;
+			margin-right: 45px;
+			    z-index: 100;
+		    font-family: 'nanumsquareregular', sans-serif;
+		    font-size: 22px;
+		    text-align: center;
+		    box-shadow: 0 2px 4px rgba(0,0,0,0.2),0 -1px 0px rgba(0,0,0,0.02);
+		}
+		.startInputContainer input,
+		.endInputContainer input {
+				    position: absolute;
+		    /* width: 100%; */
+		    /* height: 100%; */
+		    top: 3px;
+		    bottom: 3px;
+left: 6px;
+    width: calc(100% - 19px);
+		    border: none;
+		    /* right: 3px; */
+		    outline: none;
+		    font-size: 20px;
+		}
+		.startInputContainer.isCurrentLocation .isCurrentLocationIndicator, 
+		.endInputContainer.isCurrentLocation .isCurrentLocationIndicator {
+			display: block;
+		}
+		.startInputContainer.isCurrentLocation input, 
+		.endInputContainer.isCurrentLocation input {
+			1display: none;
+		    opacity: 0;
+		}
+		
+		.isCurrentLocationIndicator {
+			display: none;
+			pointer-events: none;
+		    position: absolute;
+    background-color: #2196F3;
+    /* height: 10px; */
+    color: white;
+    /* width: 10px; */
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin: 6px 5px;
+    box-sizing: border-box;
+    }
+    
+    
+    .searchResultItem {
+    background-color: white;
+    padding: 12px 22px;
+    border-bottom: 1px solid rgba(0,0,0,.2);
+}
+.searchResultItem .name {
+    font-size: 22px;
+}
+.searchResultItem .address {
+    color: rgba(0,0,0,0.47);
+    font-size: 15px;
+    font-family: 'nanumsquareregular', sans-serif;
+}
 	</style>
 	</head>
 	<body>
@@ -1004,10 +1090,12 @@ right: 12px;
 		</div>
 		<div class="locationContainer">
 			<div class="startInputContainer">
-				<input/>
+				<input class="startInput"/>
+				<div class="isCurrentLocationIndicator">현재위치</div>
 			</div>
 			<div class="endInputContainer">
-				<input/>
+				<input class="endInput"/>
+				<div class="isCurrentLocationIndicator">현재위치</div>
 			</div>
 			<div class="exchangeBtn"><i class="fa fa-exchange"></i></div>
 		</div>
@@ -1150,12 +1238,13 @@ right: 12px;
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"> </script>
 		<script src="http://test.openapi.map.naver.com/openapi/maps3.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.6/hammer.min.js"></script>
-		
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-throttle-debounce/1.1/jquery.ba-throttle-debounce.min.js"> </script>
 <!--     	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAf9_ky08m6xTxjW-ygkgYCCx9EuAHc0ms&language=ko"></script> -->
 		
 		<script src="js/controller.js"></script>
 		<script src="js/maps.js"></script>
 		<script src="js/stopMaps.js"></script>
+		<script src="js/routeView.js"></script>
 		<script src="js/view.js"></script>
 		<script src="js/model.js"></script>
 		<script src="js/api.js"></script>

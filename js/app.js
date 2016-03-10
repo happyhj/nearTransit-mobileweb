@@ -13,12 +13,13 @@
 
 
 //		this.view = new app.View(this.template, this.maps);
+		this.routeView = new app.RouteView(undefined);
 
 		this.view = new app.View(undefined);
 
 //		this.controller = new app.Controller(this.model, this.view);
 
-		this.controller = new app.Controller(this.model, this.view);
+		this.controller = new app.Controller(this.model, this.view, this.routeView);
 		
 //		this.storage = new app.Store(name);
 /*	

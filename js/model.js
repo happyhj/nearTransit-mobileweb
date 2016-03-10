@@ -5,6 +5,9 @@
 		this.api = api;
 		this._data = {};
 		this.isMylocation = false;
+		
+		// route 검색관련 글 
+		//this._
 	}
 	
 	Model.prototype.update = function (updateCmd, parameter, callback) {

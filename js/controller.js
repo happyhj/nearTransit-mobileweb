@@ -8,12 +8,12 @@
 	 * @param {object} model The model instance
 	 * @param {object} view The view instance
 	 */
-	function Controller(model, view) {
+	function Controller(model, view, routeView) {
 		var self = this;
 		
 		self.model = model;
 		self.view = view;
-		
+		self.routeView = routeView;
 		/*
 		$(self.view.maps).on('load', function () {
 			console.log('load!');
@@ -119,7 +119,62 @@
 		});	
 				
 		
-							
+		$(self.routeView).on('openRouteView', function (evt) {
+			self.routeView.resetStart();
+			self.routeView.resetEnd();
+			
+			var position = self.model.getPosition();
+			var region = position.location.region;
+			var setOption = {
+				lat: position.latitude,
+				lng: position.longitude,
+				address: [region.do, region.si, region.dong, region.ri].join(' ')
+			};
+			if(self.model.isMylocation) {
+			// CASE 1 : 지금 포커스된 위치가 내 실제 위치인 경우
+			// 포커스 위치를 출발지점에 넣는다
+				self.routeView.setStart(setOption, self.model.isMylocation);
+			} else {
+			// CASE 2 : 지금 포커스된 위치가 내 실제 위치가 아닌 경우
+			// 포커스 위치를 도착지로 넣고
+			// 출발점을 현재지점으로 넣는다. ?? 모델에 물어볼까? 그냥 가져올까??
+				self.routeView.setEnd(setOption, self.model.isMylocation);
+			}
+			self.routeView.openRouteView();
+			self.routeView.setFocusOnEmptyInput();
+		});
+
+		$(self.routeView).on('endSearchQueryChange', function (evt, query) {
+			// query 를 서버로 보내 값을 알아온다.
+			self.model.api.searchLocation(query, function(list) {
+				// 알아온 값으로 model 에 저장할 필요없을 정도로 data attr 를 이용해서 마크업에 렌더링한다.
+				self.routeView.renderSearchResult(list);
+			});
+		});
+		
+		$(self.routeView).on('startSearchQueryChange', function (evt, query) {
+			// query 를 서버로 보내 값을 알아온다.
+			self.model.api.searchLocation(query, function(list) {
+				// 알아온 값으로 model 에 저장할 필요없을 정도로 data attr 를 이용해서 마크업에 렌더링한다.
+				self.routeView.renderSearchResult(list);
+			});
+		});
+		
+		$(self.routeView).on('needToGetRoute', function (evt, startAndEnd) {
+			self.model.api.searchRoute(startAndEnd, function(data) {
+				console.log("경로정보를 가져옴!!", data);
+				if(!!data === false) {
+					// 사용가능한 루트가 없습니다. 표시
+				} else {
+					// 루트를 렌더링 
+					self.routeView.renderTimeline(data);
+				}
+				//self.routeView.renderSearchResult(list);
+			});
+		});
+				
+		
+								
 		/*
 		self.view.bind('newTodo', function (title) {
 			self.addItem(title);
