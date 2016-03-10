@@ -122,6 +122,7 @@
 		$(self.routeView).on('openRouteView', function (evt) {
 			self.routeView.resetStart();
 			self.routeView.resetEnd();
+			self.routeView.emptyContainer();
 			
 			var position = self.model.getPosition();
 			var region = position.location.region;
@@ -161,16 +162,36 @@
 		});
 		
 		$(self.routeView).on('needToGetRoute', function (evt, startAndEnd) {
-			self.model.api.searchRoute(startAndEnd, function(data) {
-				console.log("경로정보를 가져옴!!", data);
+			// promise 로 대중교통과 택시루트를 모두 가져온다.
+			var trip = startAndEnd;
+			
+			// 근데 련재 
+			
+			var pTransit = new Promise(function(resolve, reject){
+				self.model.api.searchRoute(trip, function(data) {
+					resolve(data);
+				});
+			});
+			var pTaxi = new Promise(function(resolve, reject){
+				self.model.api.searchTaxiRoute(trip, function(data) {
+					resolve(data);
+				});
+			});	
+			
+			Promise.all([pTransit, pTaxi])
+			.then(function(data){
+/*
 				if(!!data === false) {
 					// 사용가능한 루트가 없습니다. 표시
 				} else {
 					// 루트를 렌더링 
 					self.routeView.renderTimeline(data);
 				}
-				//self.routeView.renderSearchResult(list);
-			});
+*/
+				console.log("경로정보를 가져옴!!", data);
+				self.routeView.renderTimeline(data);
+			});	
+
 		});
 				
 		

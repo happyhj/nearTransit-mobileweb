@@ -498,8 +498,7 @@
 	};
 		
 	View.prototype.refreshTransitList = function (transitList, favMap) {
-		console.log("refreshTransitList with", transitList);
-				
+		console.log("refreshTransitList with", transitList);		
 		var self = this;
 		var favMap = favMap;
 		var busTemplet = Handlebars.compile($("#transitItem_template_bus").html());

@@ -388,7 +388,7 @@
 									info.isInactive = false
 								}
 							}
-							
+
 							return info;
 						});
 						
@@ -473,6 +473,30 @@
 		});		
 	};
 
+	Api.prototype.searchTaxiRoute = function (data, callback) { 
+		var start = data.start;
+		var destination = data.end;
+		$.ajax({
+			url: "/api/spirra/findCarRoute.nhn",
+			type: "get", //send it through get method
+			data:{
+				route: "route3",
+				output: "json",
+				result: "web3",
+				coord_type: "latlng",
+				search: "2",
+				car: "0",
+				mileage: "12.4",
+				start: [start.lng, start.lat, start.name || start.address].join(','),//"127.7278940,37.8787420,LF아울렛",
+				destination:  [destination.lng, destination.lat, destination.name || destination.address].join(',')
+			}
+		})
+		.done(function( data ) {		 
+			var result = data.routes[0];
+			callback(result);
+		});		
+	};
+	
 	Api.prototype.searchTransitPath = function (query, callback) { 
 		var param = query;
 		param = {

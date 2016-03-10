@@ -209,6 +209,7 @@
 		} 
 
 		.routeView .nav {			
+    background-color: rgb(220,220,220);
 /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+54,000000+100&0.65+0,0+30,0+80 */
 background: -moz-linear-gradient(top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 54%, rgba(0,0,0,0) 80%, rgba(0,0,0,0) 100%); /* FF3.6-15 */
 background: -webkit-linear-gradient(top, rgba(0,0,0,0.65) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,0) 54%,rgba(0,0,0,0) 80%,rgba(0,0,0,0) 100%); /* Chrome10-25,Safari5.1-6 */
@@ -216,7 +217,7 @@ background: linear-gradient(to bottom, rgba(0,0,0,0.65) 0%,rgba(0,0,0,0) 30%,rgb
 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a6000000', endColorstr='#00000000',GradientType=0 ); /* IE6-9 */
     width: 100%;
     height: 74px;
-    background-color: white;
+    background-color: rgb(220,220,220);
     position: relative;
     /* padding: 8px; */
     padding-top: 43px;
@@ -239,17 +240,26 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a6000000', e
 			
 		}
 		.routeView .nav > .navTitle {
-		    left: 50%;
-		    position: absolute;
-		    /* font-size: 17px; */
-		    font-family: 'nanumsquarebold', sans-serif;
-		    color: rgba(0,0,0,.75);
-		    transform: translateX(-50%);
-				}	
-				.routeView .locationContainer {
-		      border-bottom: 1px solid rgba(0,0,0,.4);
-	     box-shadow: 0 2px 4px rgba(0,0,0,0.2),0 -1px 0px rgba(0,0,0,0.02);
-
+    left: 50%;
+    position: absolute;
+    font-size: 19px;
+    font-family: 'nanumsquareregular', sans-serif;
+    color: rgba(0,0,0,.75);
+    transform: translateX(-50%);
+		}
+		.locationContainer.flip .startInputContainer {
+			transform: translateY(51px);
+		}
+		.locationContainer.flip .endInputContainer {
+			transform: translateY(-51px);
+		}
+		.startInputContainer,
+		.endInputContainer {
+			transition: transform .3s ease;
+		}
+		.routeView .locationContainer {
+		    border-bottom: 1px solid rgba(0,0,0,.4);
+			box-shadow: 0 2px 4px rgba(0,0,0,0.2),0 -1px 0px rgba(0,0,0,0.02);
 		    padding-top: 1px;   
 		    height: 112px;		
 		    width: 100%;
@@ -283,6 +293,21 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a6000000', e
     width: 100%;
     overflow: scroll;
     }
+	.routeView .timelineContainer.reverse {
+		text-align: right; 
+	}
+	.routeView .timelineContainer.reverse .totalTime {
+	    position: absolute;
+	    left: 0;
+		right: inherit;
+	    bottom: -1px;
+	    color: rgba(0,0,0,.87);
+	    font-size: 14px;
+	}
+	.totalTime {
+		transition: all .3s ease;
+	}
+	
 		.exchangeBtn i {
 		    transform: rotateZ(90deg);
 		}
@@ -783,7 +808,9 @@ right: 12px;
 			background-color: #EF6C00;
 			
 		}
-		
+		.BG_GREY_300 {
+			background-color: #E0E0E0;
+		}		
 		.BG_PINK_500 {
 			
 			background-color: #E91E63;
@@ -973,6 +1000,7 @@ right: 12px;
 		
 		.startInputContainer,
 		.endInputContainer {
+		        border-radius: 2px;
 		    pointer-events: all;
 		    position: relative;
 		    background: #fff;
@@ -1037,7 +1065,134 @@ left: 6px;
     font-size: 15px;
     font-family: 'nanumsquareregular', sans-serif;
 }
-	</style>
+.pathSection {
+    display: inline-block;
+    height: 32px;
+    border-radius: 3px;
+    transform: translateY(-50%);
+    position: relative;
+    top: 50%;
+    vertical-align: bottom;
+    color: rgba(255,255,255,.87);
+    text-align: center;
+    line-height: 32px;
+    font-size: 18px;
+}
+.pathSection.invert {
+    color: rgba(0,0,0,.87);
+}
+
+.pathSection svg {
+    height: 18px;
+    margin: 7px 0;
+    /* display: none; */
+    fill: rgba(0,0,0,.87);
+}
+.pathStream {
+    height: 72px;
+    position: relative;
+    display: inline-block;
+    margin: 0 4px;
+}
+.totalTime {
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+    color: rgba(0,0,0,.87);
+    font-size: 14px;
+}
+.timeSlider {
+    position: absolute;
+    width: 100%;
+    height: 72px;
+    bottom: 0;
+    background-color: rgb(220,220,220);
+    border-top: 1px solid rgba(0,0,0,.2);
+    box-shadow: 0 -2px 4px rgba(0,0,0,0.2),0 -1px 0px rgba(0,0,0,0.02);
+    display: none;
+    overflow-x: scroll;
+}
+
+.pathStream + .timeSlider {
+	display: block;
+}
+
+.markingPlaceholder,
+.reverseMarkingPlaceholder,
+.marking {
+	position: fixed;
+	width: 4px;
+	box-sizing: content-box;
+	background-color: rgba(0,0,0,.2);
+    height: 72px
+}
+.marking {
+	background-color: red;
+	left: 6px;
+	transition: left .3s ease; 
+}
+.reverse .marking {
+	left: calc(100% - 10px);
+}
+.markingPlaceholder {
+	left: 6px;	
+}
+.reverseMarkingPlaceholder {
+	right: 6px;
+    z-index: 100;
+}
+
+.focusedTimeLabel::after {
+	content: '출발';
+	display: block;
+}
+.reverse .focusedTimeLabel::after {
+    content: '도착';
+    display: block;
+    text-align: right;
+    /* right: -77px; */
+    1margin-right: 26px;
+}
+
+.focusedTimeLabel {
+position: absolute;
+    width: 100px;
+    right: -105px;
+    /* bottom: 0px; */
+    top: 35px;
+    color: red;
+}
+.reverse .focusedTimeLabel {
+    left: -105px;
+    text-align: right;
+
+}
+.scroller {
+    width: 200%;
+    height: 20%;
+}
+.scale {
+    border-right: 2px solid black;
+    height: 100%;
+    box-sizing: border-box;
+    display: inline-block;
+    position: relative;
+}
+.hour {
+    position: absolute;
+    left: -13px;
+    top: 16px;
+}
+.quater {
+    width: 25%;
+    display: inline-block;
+    border-right: 1px solid rgba(0,0,0,.4);
+    height: 9px;
+}
+.quater span {
+	display: none;
+}
+</style>
 	</head>
 	<body>
 	<div class="home">
@@ -1082,7 +1237,7 @@ left: 6px;
 				취소
 			</div>
 			<div class="navTitle">
-				여정 플래너
+				여정 인사이트
 			</div>
 			<div class="routeUpdateBtn">
 				찾기
@@ -1100,7 +1255,14 @@ left: 6px;
 			<div class="exchangeBtn"><i class="fa fa-exchange"></i></div>
 		</div>
 		<div class="timelineContainer">
-			
+		</div>
+		<div class="timeSlider">
+			<div class="markingPlaceholder"></div>
+			<div class="reverseMarkingPlaceholder"></div>
+			<div class="marking">
+				<div class="focusedTimeLabel">03:20 AM</div>
+			</div>
+			<div class="scroller"></div>
 		</div>
 	</div>
 	<div class="stopMapView">
