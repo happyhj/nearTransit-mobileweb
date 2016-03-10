@@ -270,7 +270,11 @@
 			return v;
 		});
 	};
+
+	RouteView.prototype.__commuteCalibration = function (data) {
 	
+		return data;
+	};
 	RouteView.prototype.renderTimeline = function (data) {
 		var self = this;
 		var timelineData = this.refineTimelineData(data);
@@ -280,6 +284,8 @@
 		timelineData = this.__fetchRemaingTime(timelineData);
 			 
 		// 시간대별로 걸리는 시간 보정
+		timelineData = this.__commuteCalibration(timelineData);
+		
 		//timelineData[0]
 		var longestTime = 0;
 		var longestIdx;
@@ -373,7 +379,7 @@
 				
 			}
 
-			return '<div class="pathSection '+colorClass+'" style="width:'+widthRatio+'%">'+content+'</div>';
+			return '<div class="pathSection '+colorClass+'" style="width:'+widthRatio+'%" data-traffic-type="'+v.trafficType+'">'+content+'</div>';
 		}).join('');
 		// 전체 컨테이너 제작 & 컨테이너 길이 절대값 세팅 
 		
@@ -398,10 +404,31 @@
 	RouteView.prototype.updateArrivalTime = function () {
 		// 현재 포커스 시간을 가져온다.
 		var focusTime = parseInt($('.focusedTimeLabel').attr("data-min"));
+
+		// 포커스 시간에 따라  $('.totalTime').attr('data-min') 을 보정하여 $('.totalTime').attr('data-min-fixed') 로 저장한다.
+		// 보도가 아닌 첫 섹션의 차량 종류아 따라 다르다.
+		// 버스 택시 같음.
+		$('.totalTime').closest('.pathStream').each(function(idx, $el){
+			if($($el).find('[data-traffic-type=3]').length > 0) {
+				// 보정 제외
+			} else {
+				// 보정 수행
+				var fixedTime = parseInt($('.totalTime').attr('data-min')) * (1+ focusTime / 60 * 24);
+				$('.totalTime').attr('data-min-fixed', fixedTime);
+			}
+		});
+		
+		
 		
 		// 각 타임라인의 totalTime 을 data attr 를 통해 얻어온다.
 		$('.totalTime').each(function(idx, el) {
-			var totalTime = parseInt($(el).attr('data-min'));
+			// *** 보정적용이 싫으면 다음을 지운다.
+//			var dataMin = $(el).attr('data-min-fixed');
+			var dataMin = $(el).attr('data-min');
+			// **** pathStream width 도 수정한다.
+			//console.log("!!",$(el).closest('.pathStream')[0].style.width);
+						
+			var totalTime = parseInt(dataMin);
 			var timeExp = $(el).find('span').text();
 
 			// 더해서 각 타임의 도착 OR 출발 시간으로 추가한다.
@@ -417,6 +444,7 @@
 				$(el).html('<span>'+timeExp+'</span> / ' + arrivalExp + ' 도착');
 			}
 		});
+		
 	};
 	
 	RouteView.prototype.getThemeClasses = function (transit) {
