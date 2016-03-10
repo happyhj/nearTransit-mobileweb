@@ -109,6 +109,15 @@
 
 		// morph 애니메이션이 끝나고 마커가 세팅되도록 하자
 		
+		// 현재 위치 마커도 세팅한다
+		var oCurruntMarker = new naver.maps.Marker({
+		    position: new naver.maps.LatLng(stopInfo.currunt.position.latitude, stopInfo.currunt.position.longitude),
+		    map: this.oMap,
+		    icon: {
+		        content: '<div class="curruntPositionMarker" style="background-color:'+$('.center').css('background-color')+'"></div>'
+		    }
+		});	
+				
 		var oStopMarker = new naver.maps.Marker({
 		    position: new naver.maps.LatLng(stopInfo.y, stopInfo.x),
 		    map: this.oMap,
@@ -119,14 +128,7 @@
 		    }
 		});
 		
-		// 현재 위치 마커도 세팅한다
-		var oCurruntMarker = new naver.maps.Marker({
-		    position: new naver.maps.LatLng(stopInfo.currunt.position.latitude, stopInfo.currunt.position.longitude),
-		    map: this.oMap,
-		    icon: {
-		        content: '<div class="curruntPositionMarker" style="background-color:'+$('.center').css('background-color')+'"></div>'
-		    }
-		});		
+	
 		
 		this._aStopMarker.push(oStopMarker);
 		this._aStopMarker.push(oCurruntMarker);

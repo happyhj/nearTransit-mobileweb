@@ -34,7 +34,7 @@
     };
        
 	function Api() {
-		
+		this._jsonp_idx = 0;
 	}
 
 	$.ajaxPrefilter( function( options, originalOptions, jqXHR ) {
@@ -427,10 +427,87 @@
 	Api.prototype.getNearBySubwayStation = function (callback) {
 		$.ajax({
 			url: "/api/pubtrans/getNearSubway.nhn?radius=2000",
-			cache: false
+			cache: false,
+			error: function() {
+				callback([]);
+			}, 
+			success: function(data) {
+				callback(JSON.parse(data).result.subwayList);
+			}
+			
+		});
+	};
+	
+	Api.prototype.searchLocation = function (query, callback) { 
+		$.ajax({
+			url: "/api/routeSearchAjax.nhn",
+			type: "get", //send it through get method
+			data:{
+				query: query,
+				page: "1"				
+			}
 		})
-		.done(function( data ) {	
-			callback(JSON.parse(data).result.subwayList);
+		.done(function( data ) {
+			callback(JSON.parse(data).result.site.list);
+		});		
+	};
+
+	Api.prototype.searchTransitPath = function (query, callback) { 
+		var param = query;
+		param = {
+			start : {
+				lat : 37.3948050,
+				lng : 127.1111489,
+				name : "판교역 신분당선"
+			},
+			end : {
+				lat : 37.4943066,
+				lng : 127.0143944,
+				name : "자연별곡교대점"
+			}
+		};
+		$.ajax({
+			url: "/api/findroute2/searchPubtransPath.nhn",
+			type: "get", //send it through get method
+			data:{
+				apiVersion: "3",
+				searchType: "0",
+				start: [param.start.lng, param.start.lat, param.start.name].join(','),
+				destination: [param.end.lng, param.end.lat, param.end.name].join(',')				
+			}
+		})
+		.done(function( data ) {
+			callback(JSON.parse(data).result);
+		});	
+	};
+	
+	Api.prototype.getAutoCompletedQueries = function (query, callback) {
+		if(!callback) {
+			console.warn('콜백함수가 없습니다');
+			return;
+		}
+		
+		var jsonpName =  "jsonp_" + this._jsonp_idx++;
+		window[jsonpName] = callback;
+		
+		$.ajax({
+			url: "http://ac.map.naver.com/mobilePlaceAddress/ac",
+			type: "get", //send it through get method
+			// Tell jQuery we're expecting JSONP
+			dataType: "jsonp",
+			data:{
+				q: query,
+				st: "10",
+				r_lt: "10",
+				r_format: "json",
+				t_koreng: "1",
+				q_enc: "UTF-8",
+				r_enc: "UTF-8",
+				r_unicode: "0",
+				r_escape: "1",
+				frm: "mobileweb",
+				_callback: jsonpName				
+			}
 		});
 	};
 	
@@ -560,13 +637,18 @@
 					.replace('};', "}")
 			);
 
-			var busArrivalList = JSON.parse(
-				data.split('station.realArrivalInfo = ')[1]
-					.split('var windowLoadEventName = "load";')[0]
-					.replace('};', "}")
-			).message;
-			
-			busArrivalList = (busArrivalList.result && busArrivalList.result.busArrivalList) || [];
+			if(data.indexOf('station.realArrivalInfo = ') !== -1) {
+				var busArrivalList = JSON.parse(
+					data.split('station.realArrivalInfo = ')[1]
+						.split('var windowLoadEventName = "load";')[0]
+						.replace('};', "}")
+				).message;
+				
+				busArrivalList = (busArrivalList.result && busArrivalList.result.busArrivalList) || [];				
+			} else {
+				busArrivalList = [];
+			}
+
 			
 			// arrivalInfo.busArrivalList array 를 
 			// stationInfo.lane 의  liveUpdate 가 true 인 lane 에 할당해주기 
