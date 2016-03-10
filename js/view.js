@@ -563,7 +563,7 @@
 		});
 								
 		$('.transitLayer').html(favHtmlArr.concat(nonFavHtmlArr));
-
+		console.log($('.transitLayer').html());
 		$('.transitItemGroup').slick({
 			dots: true,
 			//fade: true,
@@ -597,7 +597,7 @@
 			});
 		
 			var cardInitOffset = $('.transitItemGroup').length > 1 ? 123 : (($('.transitItemGroup').length === 1) ? 101 : 0);
-			
+			console.log("cardInitOffset",cardInitOffset);
 			$('.mapPlaceholder').animate({
 			    height: $(window).innerHeight() - cardInitOffset
 			}, {
