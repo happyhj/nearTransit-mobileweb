@@ -586,7 +586,6 @@
       	
 
 		if($('#scroller').attr('data-position') !== undefined) {
-			$('.mapPlaceholder').css("height", $(window).innerHeight() - 123);		
 			self.oScroll.refresh();
 			self.updateMapLayout();
 		} else {
