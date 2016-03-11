@@ -588,6 +588,8 @@
 		if($('#scroller').attr('data-position') !== undefined) {
 			self.oScroll.refresh();
 			self.updateMapLayout();
+		} else if ( $('.transitItemGroup').length === 0) {
+			
 		} else {
 			$('.mapPlaceholder').css("height", $(window).innerHeight());
 
