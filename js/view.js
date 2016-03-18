@@ -67,9 +67,9 @@
 						groupEl: $transitItemGroup[0]
 					}]);							
 				} else if ($(ev.target).hasClass("mapMarkerBtn")) {
-					alert("[정류소 위치 확인] 준비중 입니다...")
+					alert("[정류소 위치 확인] 준비중")
 					console.log(bus, selectedGroup[0].busID);
-					$(self).trigger('tapMapmarker', [selectedGroup, idx, $transitItemGroup[0]]);							
+					//$(self).trigger('tapMapmarker', [selectedGroup, idx, $transitItemGroup[0]]);							
 				}
 			}
 			
@@ -262,7 +262,7 @@
 		setTimeout(function() {
 			$('.mapOverlay .center .showbox').show();
 			//$('.mapOverlay .center').html($('#center_loader').html());
-			console.log('showLoader', $('.mapOverlay .mylocation').html())
+//			console.log('showLoader', $('.mapOverlay .mylocation').html())
 		}, 500);
 	};
 	
@@ -564,7 +564,6 @@
 		});
 								
 		$('.transitLayer').html(favHtmlArr.concat(nonFavHtmlArr));
-		console.log($('.transitLayer').html());
 		$('.transitItemGroup').slick({
 			dots: true,
 			//fade: true,

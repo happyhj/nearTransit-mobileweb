@@ -13,13 +13,6 @@ var mimeTypes = {
     "js": "text/javascript",
     "css": "text/css"};
 
-/*    
-var CLIENT_DOMAIN = os.networkInterfaces().en0[1].address;
-console.log("SERVER is on "+CLIENT_DOMAIN+":8080")
-*/
-var CLIENT_DOMAIN = "http://m2.map.naver.com/";
-
-
 var proxy = httpProxy.createProxyServer({
   target: 'http://m.map.naver.com'
 });
@@ -28,11 +21,14 @@ proxy.on('proxyReq', function(proxyReq, req, res, options) {
 	proxyReq.setHeader('Accept', '*/*');
 	proxyReq.setHeader('Host', 'm.map.naver.com');
 	proxyReq.setHeader('Connection', 'keep-alive');
+	proxyReq.setHeader('Referer', 'http://m.map.naver.com');
 
 	proxyReq.setHeader('Access-Control-Allow-Methods', 'GET, POST');
 	proxyReq.setHeader('Access-Control-Allow-Credentials', 'true');
 	proxyReq.setHeader('Access-Control-Allow-Origin', '*');
 	proxyReq.setHeader('Access-Control-Allow-Headers', 'Content-Type, *');
+
+//	console.log(req);
 });
 
 var server = http.createServer(function (req, res) {
@@ -50,14 +46,16 @@ var server = http.createServer(function (req, res) {
 						domainIdx = i;
 						break;
 					}
-				}			
-				cookieList[domainIdx] = 'Domain='+ CLIENT_DOMAIN;
+				}
+
+				cookieList[domainIdx] = 'Domain='+ req.headers.host.split(':')[0];
 				
 				return cookieList.join('; ');
 			});
 			res.setHeader('set-cookie', setCookie);			
 			res.oldWriteHead(statusCode, headers);
 		};
+		
 		req.url = req.url.replace('/api/', '/');
 		proxy.web(req, res);
 	} else { // static file 제공
