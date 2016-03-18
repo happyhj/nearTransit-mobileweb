@@ -78,4 +78,4 @@ var server = http.createServer(function (req, res) {
 	        fileStream.pipe(res);	
 	    }); //end path.exists
 	}
-}).listen(8080);
+}).listen(process.env.PORT || 5000);
