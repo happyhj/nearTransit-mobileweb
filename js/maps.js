@@ -1,5 +1,3 @@
-
-
 /*global qs, qsa, $on, $parent, $delegate */
 
 (function (window) {
@@ -15,36 +13,15 @@
 	     *     Renders the given command with the options
 	     */
 	function Maps(container) {
-		
-/*
- 		var latitude = (position && position.latitude) || 37.3595913;
- 		var longitude = (position && position.longitude) || 127.105179;
- 	
-*/	 		
-//        var oPoint = new nhn.api.map.LatLng(position.coords.latitude, position.coords.longitude); 
+
 		this.oMap;
 
 
         var self = this;
         this.$map = $(container);
         this.$center = $('.center');        
- /*
- //       nhn.api.map.setDefaultPoint('LatLng');
-
-
-        this.oMap = new nhn.api.map.Map('map' ,{
-            point : oPoint,
-            zoom : 10,
-            enableWheelZoom : true,
-            enableDragPan : true,
-            enableDblClickZoom : false,
-            mapMode : 0,
-            activateTrafficMap : false,
-            activateBicycleMap : false,
-            minMaxLevel : [ 1, 14 ],
-            size : new nhn.api.map.Size($(window).innerWidth(), $(window).innerHeight())
-	    });
-*/
+		
+		this.isMoving = false;
 
 		this.initSpring();
 	}	
@@ -52,6 +29,7 @@
 	Maps.prototype.setCenter = function(position, isMylocation) {
 		if(!position) return;
 		if(!this.oMap) {
+/*
 			this.oMap = new naver.maps.Map(this.$map[0], {
 			    center: new naver.maps.LatLng(position.latitude, position.longitude),
 			    zoom: 11,
@@ -59,11 +37,25 @@
 			    minZoom: 3,
 			    maxZoom: 12
 			});
-
+*/
+			this.oMap = new google.maps.Map(this.$map[0], {
+				center: {lat: position.latitude, lng: position.longitude},
+				zoom: 16,
+				disableDefaultUI: true,
+				noClear: true
+			});
+			
 			this.initEvents();
 		} else {
+			this.oMap.panTo({
+				lat: position.latitude,
+				lng: position.longitude
+			});			
+			
+/*
 			var oPosition = new naver.maps.LatLng(position.latitude, position.longitude);
 			this.oMap.morph(oPosition, 11); // 중심 좌표 이동
+*/
 		}
 		
 		// isMylocation 에 따라 DOT 의 색상을 바꾼다.
@@ -94,7 +86,8 @@
 	
 	Maps.prototype.initEvents = function () {
 		var self = this;
-		
+
+/*		
         this.moveendTracker = new MoveendTracker($('#map > div:first > div > div'), function(){
 	        console.log("moveend!!");
 			var center = self.oMap.getCenter();			
@@ -114,14 +107,39 @@
 			console.log('dragstart')
 			self.moveendTracker.touchStarted();
 		});
-/*
-		naver.maps.Event.addListener(this.oMap, 'drag', function(e) {
-			console.log('drag')
-		});
-*/
+
 		naver.maps.Event.addListener(this.oMap, 'dragend', function(e) {
 			console.log('dragend')
 			self.moveendTracker.touchEnded();
+		});
+*/
+		imagesLoaded( this.$map[0], function() {
+			$(self).trigger('load');
+		});
+
+		this.oMap.addListener('idle', function() {
+			if(self.isMoving) {
+				self.isMoving = false;
+				var center = self.oMap.getCenter();			
+				$(self).trigger('dragend', [{
+					latitude : center.lat(),
+					longitude : center.lng()
+				}]);			
+			}
+		});
+/*
+		this.oMap.addListener('dragend', function() {
+			var center = self.oMap.getCenter();			
+			$(self).trigger('dragend', [{
+				latitude : center.lat(),
+				longitude : center.lng()
+			}]);
+		});
+*/
+
+		this.oMap.addListener('dragstart', function() {
+			self.isMoving = true;
+			$(self).trigger('dragstart');
 		});
 	};
 

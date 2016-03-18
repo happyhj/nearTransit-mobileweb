@@ -67,6 +67,7 @@
 						groupEl: $transitItemGroup[0]
 					}]);							
 				} else if ($(ev.target).hasClass("mapMarkerBtn")) {
+					alert("[정류소 위치 확인] 준비중 입니다...")
 					console.log(bus, selectedGroup[0].busID);
 					$(self).trigger('tapMapmarker', [selectedGroup, idx, $transitItemGroup[0]]);							
 				}
@@ -615,10 +616,12 @@
 			});		
 		}
 
+/*
 		
 		$('.favoriteBtn').on("click", function(){
 			alert("어머 나를?");
 		});
+*/
 		
 		this.oScroll.on('scroll', this.updateMapLayout.bind(this));
 		
