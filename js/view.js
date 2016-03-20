@@ -480,6 +480,7 @@
 
 	View.prototype.updateMapLayout = function () {
 		// TODO 첫 카드가 화면 상단 위로 스크롤 되어 지도가 화면에 보이지 않게 되면, 아래 로직이 작동하지 않도록 한다.
+/*
 		var searchBoxHeight = $('.searchbox')[0].offsetTop + $('.searchbox').height();
 		var scrollerTopPadding = $('.transitLayer')[0].offsetTop;
 		var scrollPosition = parseInt($('#scroller').css('transform').split(',')[5].replace(')',''));
@@ -491,11 +492,11 @@
 		$('.mapOverlay').css('top', searchBoxHeight ); // $('.searchbox').height()/2
 		
 		$('#scroller').attr('data-position', scrollPosition);
-
+/*
 		if(!$('.mapOverlay').hasClass('ready')) {
 			$('.mapOverlay').addClass('ready');
-		}
-		
+		}		
+*/
 	};
 		
 	View.prototype.refreshTransitList = function (transitList, favMap) {
