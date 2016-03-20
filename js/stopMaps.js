@@ -26,7 +26,16 @@
 		this._aStopMarker = [];
         var self = this;
         this.$map = $(container);
- /*
+ 
+/*
+		this.oMap = new google.maps.Map(this.$map[0], {
+			center: {lat: position.latitude, lng: position.longitude},
+			zoom: 16,
+			disableDefaultUI: true,
+			noClear: true
+		});
+*/
+/*			
  //       nhn.api.map.setDefaultPoint('LatLng');
 
 
@@ -57,12 +66,27 @@
 				
 		// 현재 위치 와 stop 정보를 둘다 넘겨준다.
 //			var oPosition = new naver.maps.LatLng(stopInfo.currunt.position.latitude, stopInfo.currunt.position.longitude);
+/*
 		var bound = new naver.maps.LatLngBounds(
 		    new naver.maps.LatLng(stopInfo.y, stopInfo.x),
 		    new naver.maps.LatLng(stopInfo.currunt.position.latitude, stopInfo.currunt.position.longitude)
 		);
+*/
+		var bound = new google.maps.LatLngBounds(
+		    new google.maps.LatLng(stopInfo.y, stopInfo.x),
+		    new google.maps.LatLng(stopInfo.currunt.position.latitude, stopInfo.currunt.position.longitude)
+		);
+	
 		console.log("this.isNeedToRefesh", this.isNeedToRefesh);
 		if(!this.oMap) {
+			this.oMap = new google.maps.Map(this.$map[0], {
+				center: {lat: stopInfo.y, lng: stopInfo.x},
+				zoom: 16,
+				disableDefaultUI: true,
+				noClear: true
+			});
+
+/*
 			this.oMap = new naver.maps.Map(this.$map[0], {
 			    center: new naver.maps.LatLng(stopInfo.y, stopInfo.x),
 			    bounds: bound,
@@ -70,9 +94,12 @@
 			    disableKineticPan: false,
 			    minZoom: 3,
 			    maxZoom: 12
-			});			
+			});	
+*/		
 		} else {
+//			this.oMap.fitBounds(bound, { top: 90, right: 90, bottom: 30, left: 90 } );
 			this.oMap.fitBounds(bound, { top: 90, right: 90, bottom: 30, left: 90 } );
+
 		}
 		/*
  else if(!!this.isNeedToRefesh) {
@@ -108,16 +135,28 @@
 		}
 
 		// morph 애니메이션이 끝나고 마커가 세팅되도록 하자
-		
+
+	
 		// 현재 위치 마커도 세팅한다
+/*
 		var oCurruntMarker = new naver.maps.Marker({
 		    position: new naver.maps.LatLng(stopInfo.currunt.position.latitude, stopInfo.currunt.position.longitude),
 		    map: this.oMap,
 		    icon: {
 		        content: '<div class="curruntPositionMarker" style="background-color:'+$('.center').css('background-color')+'"></div>'
 		    }
-		});	
-				
+		})
+*/;	
+		
+		
+		var oCurruntMarker = new google.maps.Marker({
+		    position: new google.maps.LatLng(stopInfo.currunt.position.latitude, stopInfo.currunt.position.longitude),
+		    map: this.oMap,
+		    icon: {
+		        content: '<div class="curruntPositionMarker" style="background-color:'+$('.center').css('background-color')+'"></div>'
+		    }
+		});			
+/*
 		var oStopMarker = new naver.maps.Marker({
 		    position: new naver.maps.LatLng(stopInfo.y, stopInfo.x),
 		    map: this.oMap,
@@ -127,7 +166,16 @@
 		        //size: new naver.maps.Size(22, 35),
 		    }
 		});
-		
+*/
+		var oStopMarker = new google.maps.Marker({
+		    position: new google.maps.LatLng(stopInfo.y, stopInfo.x),
+		    map: this.oMap,
+		    icon: {
+		        content: '<div class="stopMarker" style="background-color:'+$('.stopMapView .nav').css('background-color')+'"></div>'
+		        	+ '<div class="stopNameContainer"><div class="stopName">'+stopName+'</div><div class="min">'+minHtml +'</div></div>'
+		        //size: new naver.maps.Size(22, 35),
+		    }
+		});		
 	
 		
 		this._aStopMarker.push(oStopMarker);
@@ -142,6 +190,15 @@
 	StopMaps.prototype.setCenter = function(position, isMylocation) {
 		if(!position) return;
 		if(!this.oMap) {
+			this.oMap = new google.maps.Map(this.$map[0], {
+				center: {lat: position.latitude, lng: position.longitude},
+				zoom: 16,
+				disableDefaultUI: true,
+				noClear: true
+			});
+
+
+/*
 			this.oMap = new naver.maps.Map(this.$map[0], {
 			    center: new naver.maps.LatLng(position.latitude, position.longitude),
 			    zoom: 11,
@@ -149,11 +206,14 @@
 			    minZoom: 3,
 			    maxZoom: 12
 			});
+*/
 
 			this.initEvents();
 		} else {
-			var oPosition = new naver.maps.LatLng(position.latitude, position.longitude);
-			this.oMap.morph(oPosition, 11); // 중심 좌표 이동
+//			var oPosition = new naver.maps.LatLng(position.latitude, position.longitude);
+//			this.oMap.morph(oPosition, 11); // 중심 좌표 이동
+			this.oMap.panTo({lat: position.latitude, lng: position.longitude}); // 중심 좌표 이동
+
 		}
 		
 		// isMylocation 에 따라 DOT 의 색상을 바꾼다.
